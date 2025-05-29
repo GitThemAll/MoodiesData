@@ -10,7 +10,7 @@ from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
 import hdbscan
 
-class dbscan_model: 
+class dbscan_model:     
     def __init__(self):
         self.df = pd.DataFrame()
     def get_dataset_from_file(self):
@@ -23,7 +23,7 @@ class dbscan_model:
         scaler = StandardScaler()
         return scaler.fit_transform(X)
     def reduce_dimensions(self):
-        pca = PCA(n_components='mle')
+        pca = PCA(n_components='mle', random_state=42)
         return pca.fit_transform(self.scale_model(self))
     def apply_dbscan(self):
         dbscan = DBSCAN(eps=8, min_samples=20)    
@@ -31,5 +31,15 @@ class dbscan_model:
     def decide_number_of_clusters(self):
         return  len(set(self.apply_dbscan(self))) - (1 if -1 in self.apply_dbscan(self) else 0)
     def number_noise(self):
-        return list(self.apply_dbscan(self)).count(-1)    
+        return list(self.apply_dbscan(self)).count(-1)
+    def plot_clusters(self):
+        self.df['DBSCAN_Cluster'] = self.apply_dbscan(self)
+        plt.figure(figsize=(8, 5))
+        plt.scatter(self.reduce_dimensions(self)[:, 0], self.reduce_dimensions(self)[:, 1], c=self.apply_dbscan(self), cmap='plasma', s=30)
+        plt.title('DBSCAN Clustering (PCA-reduced Data)')
+        plt.xlabel('PC1')
+        plt.ylabel('PC2')
+        plt.colorbar(label='Cluster')
+        plt.grid(True)
+        plt.show()
     pass
