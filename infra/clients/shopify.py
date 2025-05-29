@@ -3,6 +3,7 @@ import requests
 from dotenv import load_dotenv
 
 class ShopifyClient:
+    shop_name: str = None
     def __init__(self):
         load_dotenv()
         self.shop_name= os.getenv("shopify_shop_name")
