@@ -14,19 +14,22 @@ class dbscan_model:
     def __init__(self):
         self.df = pd.DataFrame()
     def get_dataset_from_file(self):
-        self.df = pd.read_csv('data//clean//customerLevel_kmeans.csv')
-        return self.df
+        return pd.read_csv('data//clean//customerLevel_kmeans.csv')
     def drop_correlated_columns(self):
         self.df.drop('Max Amount Orders', axis=1)  
         self.df[self.df['DaysSinceRecentOrder'] < 387]
     def scale_model(self):
         X = self.df.values
         scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-        return X_scaled
+        return scaler.fit_transform(X)
     def reduce_dimensions(self):
         pca = PCA(n_components='mle')
-        X_reduced = pca.fit_transform(self.scale_model(self))
-        return X_reduced
-
+        return pca.fit_transform(self.scale_model(self))
+    def apply_dbscan(self):
+        dbscan = DBSCAN(eps=8, min_samples=20)    
+        return dbscan.fit_predict(self.reduce_dimensions(self))
+    def decide_number_of_clusters(self):
+        return  len(set(self.apply_dbscan(self))) - (1 if -1 in self.apply_dbscan(self) else 0)
+    def number_noise(self):
+        return list(self.apply_dbscan(self)).count(-1)    
     pass
