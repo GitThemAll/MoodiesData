@@ -9,7 +9,7 @@ The project follows a Domain-Driven Design (DDD) structure, which means we split
 ## Overview of Layers
 
 ### 1. **Interface Layer**
-- Folder: `interfaces/ui/streamlit/pages/`
+- Folder: `interfaces/ui/streamlit`
 - This is the frontend built with Streamlit.
 - It shows pages like:
   - Overview
@@ -367,4 +367,60 @@ InsightsService --> Config
 UserService --> UserModel
 UserService --> Config
 
+```
+
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Streamlit_UI
+    participant UserService
+    participant CLVService
+    participant KlaviyoClient
+    participant ShopifyClient
+    participant CLVModel
+
+    User ->> Streamlit_UI: Log in
+    Streamlit_UI ->> UserService: authenticate(email, password)
+    UserService ->> UserService: Check credentials
+    UserService -->> Streamlit_UI: Auth success
+
+    User ->> Streamlit_UI: Click "CLV Analysis"
+    Streamlit_UI ->> ModelService: run_pipeline()
+    ModelService ->> KlaviyoClient: fetch_customers()
+    ModelService ->> ShopifyClient: fetch_orders()
+    ModelService ->> ModelService: clean, feature engineer, prepare data
+    ModelService ->> MLModels: predict(input)
+    MLModels -->> ModelService: predicted
+    ModelService -->> Streamlit_UI: return results
+    Streamlit_UI -->> User: Display predictions
+```
+
+### State Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> LoggedOut
+
+    LoggedOut --> LoggingIn: User submits login
+    LoggingIn --> AuthFailed: Invalid credentials
+    LoggingIn --> LoggedIn: Credentials valid
+
+    LoggedIn --> ViewingDashboard: Navigates to dashboard
+    ViewingDashboard --> ViewingCLV: Opens CLV page
+    ViewingDashboard --> ViewingSegments: Opens Segments page
+    ViewingDashboard --> ViewingNPD: Opens Next Purchase page
+
+    ViewingCLV --> RefreshingCLV: User clicks refresh
+    RefreshingCLV --> ViewingCLV
+
+    ViewingNPD --> RefreshingNPD: User clicks refresh
+    RefreshingNPD --> ViewingNPD
+
+    ViewingSegments --> RefreshingSegments: User clicks refresh
+    RefreshingSegments --> ViewingSegments
+
+    LoggedIn --> LoggedOut: User logs out
 ```
