@@ -1,5 +1,6 @@
 import pandas as pd
 from pandas import DataFrame
+from datetime import date
 
 #This file clean orders and customers data sets and merge the file to customer level for behaviour analysis
 
@@ -44,6 +45,10 @@ class clean_segmentation:
     def accepts_marketing_to_binary(self):
         self.df['Accepts Marketing'] = self.df['Accepts Marketing'].map({'yes': 1, 'no': 0})
 
-    
+    def define_reference_date(self):
+        reference_date = pd.Timestamp.today().normalize()
+        self.df['Paid at'] = pd.to_datetime(self.df['Paid at'], errors='coerce').dt.tz_localize(None)
+        self.df['Days Since today'] = (reference_date - self.df['Paid at']).dt.days
+        self.df['DaysSinceRecentOrder'] = self.df.groupby('Email')['Days Since today'].transform('min')
     
     
