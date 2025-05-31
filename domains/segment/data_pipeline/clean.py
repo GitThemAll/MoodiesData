@@ -3,7 +3,7 @@ from pandas import DataFrame
 
 #This file clean orders and customers data sets and merge the file to customer level for behaviour analysis
 
-class clean: 
+class clean_segmentation: 
     file_path : str
     df : DataFrame
     cutoff : pd.Timestamp
