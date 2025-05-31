@@ -1,0 +1,3 @@
+class clean:
+    
+    pass

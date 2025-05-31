@@ -12,9 +12,14 @@ from sklearn.neighbors import NearestNeighbors
 import hdbscan
 
 class dbscan_model:  
-    #df : dataframe()   
+    df : DataFrame
+    scaler : StandardScaler
+    pca : PCA
+    
     def __init__(self):
         self.df = DataFrame()
+        self.scaler = StandardScaler()
+        self.pca = PCA()
     
     def get_dataset_from_file(self) -> DataFrame: 
         return pd.read_csv('data//clean//customerLevel_kmeans.csv')
@@ -25,8 +30,7 @@ class dbscan_model:
 
     def scale_model(self):
         X = self.df.values
-        scaler = StandardScaler()
-        return scaler.fit_transform(X)
+        return self.scaler.fit_transform(X)
     
     def reduce_dimensions(self):
         pca = PCA(n_components='mle', random_state=42)
