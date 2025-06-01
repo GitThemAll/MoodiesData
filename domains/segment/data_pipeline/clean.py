@@ -84,6 +84,6 @@ class clean_segmentation:
         self.klaviyo_df['Email'] = self.klaviyo_df['Email'].apply(lambda x: x if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', str(x)) else pd.NA)
     
     def merge_klaviyo_orders(self):
-        
+        self.klaviyo_df = self.klaviyo_df[self.klaviyo_df['Email'].isin(self.df['Email'])]
         pass
     
