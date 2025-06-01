@@ -7,8 +7,21 @@ class feature_engineering_segmentation:
 
     def __init__(self):
         #self.file_path = "Data\\Processed Data\\orders_filled.csv"
-
         pass
+
+    def feature_local_data(self):
+        self.order_features
+        self.categorize_payment
+        self.apply_payment_categorization
+        self.payment_dummy_vars
+        self.group_by_email
+        self.recent_country_per_email
+        self.has_discount_column
+        self.create_sku_list
+        self.drop_columns
+        self.group_by_email
+        pass        
+
     def order_features(self):
         self.df['Nb Orders'] = self.df.groupby('Email')['Id'].transform('nunique')
         self.df['Amount Orders'] = self.df.groupby('Email')['Total'].transform('sum')
@@ -56,7 +69,7 @@ class feature_engineering_segmentation:
         # Merge back with the original DataFrame
         self.df = self.df.drop(columns=self.df_payment_dummies.columns).merge(df_payment_dummies_grouped, on='Email', how='left')
     
-    def recent_countrry_per_email(self):
+    def recent_country_per_email(self):
         # Get the most recent row per Email
         latest_info = self.df.loc[self.df.groupby('Email')['Paid at'].idxmax(), ['Email', 'Billing Country', 'Billing City']]
         # Rename columns
@@ -75,7 +88,7 @@ class feature_engineering_segmentation:
         self.df['Never Free Shipping'] = self.df.groupby('Email')['Free Shipping'].transform(lambda x: int((x == 0).all()))
         self.df['Max Discount Percentage'] = self.df.groupby('Email')['Discount Per'].transform('max')
 
-    def sku_list(self):
+    def create_sku_list(self):
         df_SKU = self.df.groupby('Email', as_index=False).agg({'Lineitem sku': list})
         df_SKU.rename(columns={'Lineitem sku': 'List SKU'}, inplace=True)
         #check if sku apear more than once
