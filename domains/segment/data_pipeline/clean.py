@@ -10,8 +10,20 @@ class clean_segmentation:
     cutoff : pd.Timestamp
 
     def __init__(self):
-        self.file_path = "Data\\Processed Data\\orders_filled.csv"
+        self.file_path = "resources\data\processed\segment\orders_filled.csv"
         self.cutoff = pd.Timestamp('2024-03-01', tz='UTC')
+        pass
+
+    def clean_local_data(self):
+        self.read_dataset_columns_to_keep
+        self.drop_paid_dates_at_migration_time
+        self.product_include_discount_fee
+        self.replace_discount_amount_max
+        self.remove_na_lineItem
+        self.accepts_marketing_to_binary
+        self.define_reference_date
+    
+    def cleam_api_data():
         pass
 
     def columns_to_keep():                
