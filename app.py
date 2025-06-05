@@ -16,8 +16,6 @@ def create_app():
     # profiles = client.fetch_all_profiles()
     # client.save_profiles_to_csv(profiles, filename="klaviyo_customers.csv")
 
-    clean = clean_segmentation()
-    clean.clean_local_data()
     return app
 
 if __name__ == '__main__':
