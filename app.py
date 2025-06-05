@@ -3,6 +3,7 @@ from interfaces.api.user_controller import user_bp
 from interfaces.api.discount_code_routes import discount_code_bp
 from infra.clients.shopify import ShopifyClient
 from infra.clients.klaviyo import KlaviyoClient
+from domains.segment.data_pipeline.clean import clean_segmentation
 
 def create_app():
     app = Flask(__name__)
@@ -14,6 +15,9 @@ def create_app():
     # client = KlaviyoClient()
     # profiles = client.fetch_all_profiles()
     # client.save_profiles_to_csv(profiles, filename="klaviyo_customers.csv")
+
+    clean = clean_segmentation()
+    clean.clean_local_data()
     return app
 
 if __name__ == '__main__':

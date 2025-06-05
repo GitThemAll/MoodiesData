@@ -4,7 +4,6 @@ from datetime import date
 import re
 
 #This file clean orders and customers data sets and merge the file to customer level for behaviour analysis
-
 class clean_segmentation: 
     file_path_klaviyo : str
     file_path_filled_orders : str
@@ -15,38 +14,49 @@ class clean_segmentation:
 
     def __init__(self):
         self.file_path_klaviyo = "resources\data\processed\segment\Klaviyo_everyone_email.csv"
-        self.file_path_merged = "resources\data\processed\segment\orders_merge.csv"
+        self.file_path_merged = "shopify_orders_from_mar_2024.csv"
         self.file_path_filled_orders = "resources\data\processed\segment\orders_filled.csv"
         self.cutoff = pd.Timestamp('2024-03-01', tz='UTC')
         pass
 
     def clean_local_data(self):
-        self.fill_na_rows
-        self.read_dataset_columns_to_keep
-        self.drop_paid_dates_at_migration_time
-        self.product_include_discount_fee
-        self.replace_discount_amount_max
-        self.remove_na_lineItem
-        self.accepts_marketing_to_binary
-        self.define_reference_date
+        self.fill_na_rows()
+        self.read_dataset_columns_to_keep()
+        self.drop_paid_dates_at_migration_time()
+        self.product_include_discount_fee()
+        self.replace_discount_amount_max()
+        self.remove_na_lineItem()
+        self.accepts_marketing_to_binary()
+        self.define_reference_date()
+        #klaviyo 
+        self.clean_klaviyo_local()
+        self.merge_klaviyo_orders()
+
+
     
     def clean_api_data():
         pass
 
-    def columns_to_keep():                
+    def shopify_columns_to_keep(self):                
         return ['Name', 'Email', 'Paid at', 'Accepts Marketing', 'Shipping', 'Total','Discount Amount', 'Lineitem quantity',
-       'Lineitem name', 'Lineitem price', 'Lineitem sku', 'Billing City','Billing Country', 'Payment Method', 'Id']   
+               'Lineitem name', 'Lineitem price', 'Lineitem sku', 'Billing City','Billing Country', 'Payment Method', 'Id']   
+
+    def klaviyo_columns_to_keep(self):
+        return ['Email', 'Email Marketing Consent',
+       'First Active', 'Last Active','Profile Created On', 'Date Added', 'Last Open', 'Last Click',
+       'Initial Source','Last Source', 
+       'Historic Customer Lifetime Value','Accepts Marketing','Last Purchase Date']
 
     def fill_na_rows(self):
         self.df = pd.read_csv(self.file_path_filled_orders, delimiter=",", quotechar='"', encoding="utf-8", low_memory=False)
         self.df[self.df['Email'].notna()]
         self.df['Email'] = self.df['Email'].apply(lambda x: x if re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', str(x)) else pd.NA)
         self.df.sort_values(by=['Name', 'Id'])  # Sort by Email and Payment Date
-        self.df = self.df.ffill(inplace=True)  # Forward fill missing values   
+        self.df.ffill(inplace=True)  # Forward fill missing values   
 
     def read_dataset_columns_to_keep(self):
         self.df = pd.read_csv(self.file_path_filled_orders, delimiter=",", quotechar='"', encoding="utf-8", low_memory=False)
-        self.df[self.columns_to_keep] 
+        self.df = self.df[self.shopify_columns_to_keep()]
      
     def drop_paid_dates_at_migration_time(self): # MU migrated woocommerce data end of feb so all woocommerce orders are assigned to one day in shopify
         # Ensure 'Paid at' is in datetime format
@@ -85,5 +95,25 @@ class clean_segmentation:
     
     def merge_klaviyo_orders(self):
         self.klaviyo_df = self.klaviyo_df[self.klaviyo_df['Email'].isin(self.df['Email'])]
-        pass
+        #self.klaviyo_df.to_csv("klaviyo_customers_test_merge.csv")
+
+    def klaviyo_fix_date_columns(self):
+        date = [
+            "First Active",
+            "Last Active",
+            "Profile Created On",
+            "Date Added",
+            "Expected Date Of Next Order",
+            "First Purchase Date",
+            "Last Purchase Date",
+            "Last Open",
+            "Last Click"
+        ]
+        for col in date:
+            self.klaviyo_df[col] = pd.to_datetime(self.klaviyo_df[col],errors='coerce', utc=True)
+            self.klaviyo_df[col] = self.klaviyo_df[col].dt.tz_localize(None)
+    
+    def klaviyo_drop_columns(self):
+        self.klaviyo_df = self.klaviyo_df[self.klaviyo_columns_to_keep()]
+        return
     
