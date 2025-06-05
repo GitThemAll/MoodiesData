@@ -72,20 +72,21 @@ class clean_segmentation:
         self.df.loc[fee_rows, 'Lineitem name'] = 'NA'
         self.df.loc[fee_rows, 'Lineitem sku'] = 'NA'
 
-    def replace_discount_amount_max(self):
-        self.df['Discount Amount'] = self.df.groupby('Name')['Discount Amount'].transform('max')
+    # moved to featuring
+    # def replace_discount_amount_max(self):
+    #     self.df['Discount Amount'] = self.df.groupby('Name')['Discount Amount'].transform('max')
     
-    def remove_na_lineItem(self):
-        self.df = self.df[self.df['Lineitem name'] != 'NA']
+    # def remove_na_lineItem(self):
+    #     self.df = self.df[self.df['Lineitem name'] != 'NA']
 
-    def accepts_marketing_to_binary(self):
-        self.df['Accepts Marketing'] = self.df['Accepts Marketing'].map({'yes': 1, 'no': 0})
+    # def accepts_marketing_to_binary(self):
+    #     self.df['Accepts Marketing'] = self.df['Accepts Marketing'].map({'yes': 1, 'no': 0})
 
-    def define_reference_date(self):
-        reference_date = pd.Timestamp.today().normalize()
-        self.df['Paid at'] = pd.to_datetime(self.df['Paid at'], errors='coerce').dt.tz_localize(None)
-        self.df['Days Since today'] = (reference_date - self.df['Paid at']).dt.days
-        self.df['DaysSinceRecentOrder'] = self.df.groupby('Email')['Days Since today'].transform('min')
+    # def define_reference_date(self):
+    #     reference_date = pd.Timestamp.today().normalize()
+    #     self.df['Paid at'] = pd.to_datetime(self.df['Paid at'], errors='coerce').dt.tz_localize(None)
+    #     self.df['Days Since today'] = (reference_date - self.df['Paid at']).dt.days
+    #     self.df['DaysSinceRecentOrder'] = self.df.groupby('Email')['Days Since today'].transform('min')
     
     #Klaviyo data cleaning 
     def clean_klaviyo_local(self):

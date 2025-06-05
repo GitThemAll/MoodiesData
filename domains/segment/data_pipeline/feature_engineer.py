@@ -1,5 +1,6 @@
 import pandas as pd 
 from pandas import DataFrame
+from datetime import date
 import numpy as np
 
 class feature_engineering_segmentation:
@@ -24,6 +25,7 @@ class feature_engineering_segmentation:
         self.group_by_email()        
         pass        
 
+    #Shopify
     def order_features(self):
         self.shopify_df['Nb Orders'] = self.shopify_df.groupby('Email')['Id'].transform('nunique')
         self.shopify_df['Amount Orders'] = self.shopify_df.groupby('Email')['Total'].transform('sum')
@@ -100,11 +102,30 @@ class feature_engineering_segmentation:
         self.shopify_df = self.shopify_df.merge(df_SKU, on='Email', how='left')
     
     def top_10_countries(self):
+        #replace countries with other + pick top 10 countries 
+        # df['Recent Country'] = df['Recent Country'].apply(lambda x: x if x in top_countries.index else 'Other')
+        # #encode dummy variables
+        # df = pd.get_dummies(df, columns=['Recent Country'], drop_first=True)
         pass
     def top_10_cities(self):
+        #top_cities = df['Recent City'].value_counts().head(5)
+        #top_countries = df['Recent Country'].value_counts().head(3)
+        #replace other cities with Other, 
+        # df['Recent City'] = df['Recent City'].apply(lambda x: x if x in top_cities.index else 'Other')
+        # #encode dummy variables
+        # df = pd.get_dummies(df, columns=['Recent City'], drop_first=True)
         pass
     def top_10_skus(self):
+        top_skus = [
+            "MS-006", "YM-006", "YH-006", "MM-008", "ML-009",
+            "SY-001", "SM-001", "SM-003", "EM-010", "EM-008"
+        ]
+        self.shopify_df['Lineitem sku'] = self.shopify_df['Lineitem sku'].apply(lambda x: x if x in top_skus else 'Other')
+        self.shopify_df = pd.get_dummies(self.shopify_df, columns=['Lineitem sku'], drop_first=True)
         pass
+    
+    def replace_discount_amount_max(self):
+        self.df['Discount Amount'] = self.df.groupby('Name')['Discount Amount'].transform('max')
 
     def drop_columns(self):
         # Drop to columns
@@ -115,6 +136,18 @@ class feature_engineering_segmentation:
 
     def group_by_email(self):
         self.shopify_df = self.shopify_df.groupby('Email', as_index=False).first()
+
+    def remove_na_lineItem(self):
+        self.df = self.df[self.df['Lineitem name'] != 'NA']
+
+    def accepts_marketing_to_binary(self):
+        self.df['Accepts Marketing'] = self.df['Accepts Marketing'].map({'yes': 1, 'no': 0})
+
+    def define_reference_date(self):
+        reference_date = pd.Timestamp.today().normalize()
+        self.df['Paid at'] = pd.to_datetime(self.df['Paid at'], errors='coerce').dt.tz_localize(None)
+        self.df['Days Since today'] = (reference_date - self.df['Paid at']).dt.days
+        self.df['DaysSinceRecentOrder'] = self.df.groupby('Email')['Days Since today'].transform('min')
 
     #klaviyo
     def categorize_source1(source):
@@ -153,7 +186,7 @@ class feature_engineering_segmentation:
         self.klaviyo_df['open'] = np.where(pd.notna(self.klaviyo_df['Last Open']), 1, 0)
     
     def days_since_reference_date(self):
-        reference_date = pd.to_datetime('2025-03-10')
+        reference_date = pd.Timestamp.today().normalize()
         date2 = ["First Active","Last Active","Profile Created On","Date Added"]
         for col in date2:
             self.klaviyo_df[col] = pd.to_datetime(self.klaviyo_df[col], errors='coerce').dt.tz_localize(None)
