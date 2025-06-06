@@ -14,14 +14,21 @@ class dbscan_model:
     df : DataFrame
     scaler : StandardScaler
     pca : PCA
-    
+    x_reduced : np.ndarray
+
     def __init__(self):
-        self.df = DataFrame()
-        self.scaler = StandardScaler()
-        self.pca = PCA()
+        pass    
     
-    def get_dataset_from_file(self) -> DataFrame: 
-        return pd.read_csv('data//clean//customerLevel_kmeans.csv')
+    def train_dbscan_model_seg(self):
+        self.drop_correlated_columns()
+        self.scale_model()
+        self.reduce_dimensions()
+        self.apply_dbscan()
+        self.decide_number_of_clusters()
+        self.number_noise()
+
+    def get_dataset_from_file(self, dataset): 
+        self.df = dataset
     
     def drop_correlated_columns(self):
         self.df.drop('Max Amount Orders', axis=1)  
@@ -34,7 +41,7 @@ class dbscan_model:
     def reduce_dimensions(self):
         pca = PCA(n_components='mle', random_state=42)
         self.get_dataset_from_file()
-        return pca.fit_transform(self.scale_model)
+        self.x_reduced = pca.fit_transform(self.scale_model)
     
     def apply_dbscan(self):
         dbscan = DBSCAN(eps=8, min_samples=20)    
@@ -43,17 +50,30 @@ class dbscan_model:
     def decide_number_of_clusters(self):
         return  len(set(self.apply_dbscan)) - (1 if -1 in self.apply_dbscan else 0)
     
-    def number_noise(self):
+    def number_noise(self) -> list:
         return list(self.apply_dbscan).count(-1)
+    
+    #add dbscan_labels to self
+    def evalutate_exclude_noise(self, dbscan_labels):
+        mask = dbscan_labels != -1
+        n_clusters = len(set(dbscan_labels[mask]))
+        if n_clusters > 1:
+            sil_score = silhouette_score(self.x_reduced[mask], dbscan_labels[mask])
+            print(f"Clusters found: {n_clusters}")
+            print(f"Silhouette Score: {sil_score:.3f}")
 
-    def plot_clusters(self):
-        self.df['DBSCAN_Cluster'] = self.apply_dbscan
-        plt.figure(figsize=(8, 5))
-        plt.scatter(self.reduce_dimensions[:, 0], self.reduce_dimensions[:, 1], c=self.apply_dbscan, cmap='plasma', s=30)
-        plt.title('DBSCAN Clustering (PCA-reduced Data)')
-        plt.xlabel('PC1')
-        plt.ylabel('PC2')
-        plt.colorbar(label='Cluster')
-        plt.grid(True)
-        plt.show()
-    pass
+    def summarize_clusters(self):
+        df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
+        cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True)
+        print(cluster_summary)
+        cluster_summary.to_csv('dbscan_cluster_summary.csv')
+
+    # def plot_clusters(self):
+    #     self.df['DBSCAN_Cluster'] = self.apply_dbscan
+    #     plt.figure(figsize=(8, 5))
+    #     plt.scatter(self.reduce_dimensions[:, 0], self.reduce_dimensions[:, 1], c=self.apply_dbscan, cmap='plasma', s=30)
+    #     plt.title('DBSCAN Clustering (PCA-reduced Data)')
+    #     plt.xlabel('PC1')
+    #     plt.ylabel('PC2')
+    #     plt.colorbar(label='Cluster')
+    #     plt.grid(True)

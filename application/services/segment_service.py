@@ -15,7 +15,6 @@ class segment_service:
 
     def __init__(self):
         self.set_data_static()
-        pass
 
     def set_data_static(self):
         self.shopify_data = pd.read_csv(self.shopify_data_path, delimiter=",", quotechar='"', encoding="utf-8", low_memory=False)

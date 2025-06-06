@@ -238,17 +238,11 @@ class feature_engineering_segmentation:
     
     def merge_orders_klaviyo(self):
         self.shopify_df =self.shopify_df[self.shopify_df['Email'].isin(self.klaviyo_df['Email'])]
-        #df1 =df1[df1['Email'].isin(df['Email'])]
-
         merged_df = pd.merge(self.shopify_df, self.klaviyo_df, on="Email", how="inner")  # 'how' can be 'left', 'right', 'outer', or 'inner'
-        #merged_df1 = pd.merge(df1, df, on="Email", how="inner")  # 'how' can be 'left', 'right', 'outer', or 'inner'
         merged_df.rename(columns={'Historic Customer Lifetime Value': 'CLV'}, inplace=True)
-        #merged_df1.rename(columns={'Historic Customer Lifetime Value': 'CLV'}, inplace=True)
-
+        drop = ["List SKU"]
         # Save merged file
         merged_df.to_csv("order_klav_merge_customerLevel.csv", index=False)
 
-        # # Save merged file 
-        # merged_df1.to_csv("Data\\Processed Data\\order_klav_merge_orderLevel.csv", index=False)
 
     
