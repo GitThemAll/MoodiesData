@@ -14,9 +14,6 @@ class clean_segmentation:
     cutoff : pd.Timestamp
 
     def __init__(self):
-        # self.file_path_klaviyo = "resources\data\processed\segment\Klaviyo_everyone_email.csv"
-        # self.file_path_merged = "shopify_orders_from_mar_2024.csv"
-        # self.file_path_filled_orders = "resources\data\processed\segment\orders_filled.csv"
         self.cutoff = pd.Timestamp('2024-03-01', tz='UTC')
         pass
 
@@ -26,12 +23,13 @@ class clean_segmentation:
 
     def clean_local_data(self):
         self.fill_na_rows()
-        self.read_dataset_columns_to_keep()
+        self.shopify_drop_columns()
         self.drop_paid_dates_at_migration_time()
         self.product_include_discount_fee()
         self.replace_discount_amount_max()
         self.remove_na_lineItem()
         #klaviyo 
+        self.klaviyo_drop_columns()
         self.clean_klaviyo_local()
         self.merge_klaviyo_orders()
         self.to_csv()
@@ -40,11 +38,11 @@ class clean_segmentation:
     def clean_api_data():
         pass
 
-    def shopify_columns_to_keep(self):                
+    def shopify_columns_to_keep(self, value):                
         return ['Name', 'Email', 'Paid at', 'Accepts Marketing', 'Shipping', 'Total','Discount Amount', 'Lineitem quantity',
                'Lineitem name', 'Lineitem price', 'Lineitem sku', 'Billing City','Billing Country', 'Payment Method', 'Id']   
 
-    def klaviyo_columns_to_keep(self):
+    def klaviyo_columns_to_keep(self, value):
         return ['Email', 'Email Marketing Consent',
        'First Active', 'Last Active','Profile Created On', 'Date Added', 'Last Open', 'Last Click',
        'Initial Source','Last Source', 
@@ -57,9 +55,9 @@ class clean_segmentation:
         self.shopify_df.sort_values(by=['Name', 'Id'])  # Sort by Email and Payment Date
         self.shopify_df.ffill(inplace=True)  # Forward fill missing values   
 
-    def read_dataset_columns_to_keep(self):
-        # self.shopify_df = pd.read_csv(self.file_path_filled_orders, delimiter=",", quotechar='"', encoding="utf-8", low_memory=False)
-        self.shopify_df = self.shopify_df[self.shopify_columns_to_keep()]
+    def shopify_drop_columns(self):
+        #self.shopify_df = pd.read_csv(self.file_path_filled_orders, delimiter=",", quotechar='"', encoding="utf-8", low_memory=False)
+        self.shopify_df = self.shopify_df[self.shopify_columns_to_keep]
      
     def drop_paid_dates_at_migration_time(self): # MU migrated woocommerce data end of feb so all woocommerce orders are assigned to one day in shopify
         # Ensure 'Paid at' is in datetime format
@@ -119,8 +117,7 @@ class clean_segmentation:
             self.klaviyo_df[col] = self.klaviyo_df[col].dt.tz_localize(None)
     
     def klaviyo_drop_columns(self):
-        self.klaviyo_df = self.klaviyo_df[self.klaviyo_columns_to_keep()]
-        return
+        self.klaviyo_df = self.klaviyo_df[self.klaviyo_columns_to_keep]
     
     def to_csv(self):
         self.shopify_df.to_csv("shopify_cleaned.csv")
