@@ -9,7 +9,6 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
-import hdbscan
 
 class dbscan_model:  
     df : DataFrame
