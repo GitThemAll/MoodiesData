@@ -10,7 +10,6 @@ import numpy as np
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import KMeans
-import hdbscan
 
 class dbscan_model:  
     df : DataFrame
@@ -38,19 +37,9 @@ class dbscan_model:
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
-            "Recent City_utrecht", "Recent Country_be", "Recent Country_nl"            
+            "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
+            "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
         ]
-        # return [
-        #     "DaysSinceRecentOrder", "Nb Orders",
-        #     "Nb items", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
-        #     "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments", 
-        #     "Always Free Shipping", "Max Discount Percentage",
-        #     "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
-        #     "open", "Days since First Active", "Recent City_amersfoort",
-        #     "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
-        #     "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
-        #     "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
-        # ]
 
     def train_dbscan_model_seg(self):
         self.drop_correlated_columns()
@@ -86,7 +75,7 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=2.5, min_samples=800) 
+        dbscan = DBSCAN(eps=2.7, min_samples=800) 
         #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
@@ -135,8 +124,8 @@ class dbscan_model:
         cluster_counts = self.df['DBSCAN_Cluster'].value_counts().sort_index()
         cluster_counts_df = cluster_counts.reset_index()
         cluster_counts_df.columns = ['Cluster', 'Num_Customers']
-        return cluster_counts_df
-        
+        return cluster_counts_df    
+
     # def tune_dbscan(self, X, eps_values, min_samples_values):
     #     best_score = -1
     #     best_params = None
