@@ -30,7 +30,7 @@ class dbscan_model:
             "DaysSinceRecentOrder", "Nb Orders",
             "Nb items", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments",
-            "Always Discount", "Always Free Shipping", "Never Discount", "Max Discount Percentage",
+            "Always Discount", "Always Free Shipping", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "click", "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
