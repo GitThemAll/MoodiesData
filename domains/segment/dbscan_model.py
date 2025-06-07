@@ -33,7 +33,7 @@ class dbscan_model:
             "Always Discount", "Always Free Shipping", "Never Discount", "Never Free Shipping", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "click", "open", "Days since First Active",
-            "Days since Profile Created On", "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
+            "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
             "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl",
             "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006",
             "Recent City_amersfoort"
