@@ -32,7 +32,7 @@ class dbscan_model:
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments", 
             "Always Free Shipping", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
-            "click", "open", "Days since First Active", "Recent City_amersfoort",
+            "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
             "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
             "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
