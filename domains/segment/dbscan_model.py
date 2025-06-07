@@ -34,30 +34,38 @@ class dbscan_model:
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "click", "open", "Days since First Active", "Days since Last Active",
             "Days since Profile Created On", "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
-            "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl"
+            "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl",
+            "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006",
+            "Recent City_amersfoort"
         ]
 
     def train_dbscan_model_seg(self):
         self.drop_correlated_columns()
         self.scale_model()
         self.reduce_dimensions()
-        best_params, best_score, best_labels = self.tune_dbscan(self.x_reduced, self.eps_range, self.min_samples_range)
-        if best_labels is not None:
-            self.labels = best_labels
-            print(f"✅ Best DBSCAN parameters: eps={best_params[0]}, min_samples={best_params[1]}")
-            print(f"📈 Silhouette Score: {best_score:.3f}")
-
-            self.evalutate_exclude_noise()
-            summary_path = self.summarize_clusters()
-            print(f"📊 Cluster summary saved to: {summary_path}")
-        else:
-            print("⚠️ No suitable DBSCAN configuration found.")
         self.apply_dbscan()
         self.decide_number_of_clusters()
         self.number_noise()
         self.evalutate_exclude_noise(self.labels)
         summary_path = self.summarize_clusters()
         print(f"Cluster summary saved to: {summary_path}")
+        # best_params, best_score, best_labels = self.tune_dbscan(self.x_reduced, self.eps_range, self.min_samples_range)
+        # if best_labels is not None:
+        #     self.labels = best_labels
+        #     print(f"✅ Best DBSCAN parameters: eps={best_params[0]}, min_samples={best_params[1]}")
+        #     print(f"📈 Silhouette Score: {best_score:.3f}")
+
+        #     self.evalutate_exclude_noise()
+        #     summary_path = self.summarize_clusters()
+        #     print(f"📊 Cluster summary saved to: {summary_path}")
+        # else:
+        #     print("⚠️ No suitable DBSCAN configuration found.")
+        # self.apply_dbscan()
+        # self.decide_number_of_clusters()
+        # self.number_noise()
+        # self.evalutate_exclude_noise(self.labels)
+        # summary_path = self.summarize_clusters()
+        # print(f"Cluster summary saved to: {summary_path}")
         
 
     def get_dataset_from_file(self, dataset): 
@@ -77,7 +85,8 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=8, min_samples=20)    
+        dbscan = DBSCAN(eps=8.5, min_samples=22) 
+        #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
     def decide_number_of_clusters(self):
@@ -103,28 +112,28 @@ class dbscan_model:
         cluster_summary.to_csv(output_path, index=True)
         return output_path
     
-    def tune_dbscan(self, X, eps_values, min_samples_values):
-        best_score = -1
-        best_params = None
-        best_labels = None
+    # def tune_dbscan(self, X, eps_values, min_samples_values):
+    #     best_score = -1
+    #     best_params = None
+    #     best_labels = None
 
-        for eps in eps_values:
-            for min_samples in min_samples_values:
-                model = DBSCAN(eps=eps, min_samples=min_samples)
-                labels = model.fit_predict(X)
+    #     for eps in eps_values:
+    #         for min_samples in min_samples_values:
+    #             model = DBSCAN(eps=eps, min_samples=min_samples)
+    #             labels = model.fit_predict(X)
 
-                # Exclude noise for scoring
-                if len(set(labels)) > 1 and np.sum(labels != -1) > 0:
-                    try:
-                        score = silhouette_score(X[labels != -1], labels[labels != -1])
-                        if score > best_score:
-                            best_score = score
-                            best_params = (eps, min_samples)
-                            best_labels = labels
-                    except:
-                        continue
+    #             # Exclude noise for scoring
+    #             if len(set(labels)) > 1 and np.sum(labels != -1) > 0:
+    #                 try:
+    #                     score = silhouette_score(X[labels != -1], labels[labels != -1])
+    #                     if score > best_score:
+    #                         best_score = score
+    #                         best_params = (eps, min_samples)
+    #                         best_labels = labels
+    #                 except:
+    #                     continue
 
-        return best_params, best_score, best_labels
+    #     return best_params, best_score, best_labels
 
     # def plot_clusters(self):
     #     self.df['DBSCAN_Cluster'] = self.apply_dbscan
