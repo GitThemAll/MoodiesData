@@ -27,7 +27,7 @@ class dbscan_model:
     
     def model_x_value(self) -> list:
         return [
-            "DaysSinceRecentOrder", "Nb Orders", "Amount Orders",
+            "DaysSinceRecentOrder", "Nb Orders",
             "Nb items", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments",
             "Always Discount", "Always Free Shipping", "Never Discount", "Max Discount Percentage",
