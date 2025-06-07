@@ -6,3 +6,7 @@ matplotlib==3.10.1
 seaborn==0.13.2
 xgboost==3.0.0
 python-dotenv==1.1.0
+Flask==3.0.2
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy==2.0.30
+Flask-Migrate==4.1.0
