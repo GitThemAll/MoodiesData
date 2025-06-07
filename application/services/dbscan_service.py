@@ -45,3 +45,31 @@ class dbscan_service:
                 "status": "error",
                 "message": str(e)
             }
+        
+    def get_cluster_summary_json(self):
+        """
+        Return the cluster summary as a JSON-serializable dictionary for API use.
+        """
+        try:
+            summary_path = os.path.join(
+                "resources", "data", "processed", "segment", "dbscan_cluster_summary.csv"
+            )
+
+            if not os.path.exists(summary_path):
+                return {
+                    "status": "error",
+                    "message": "Cluster summary not found. Please train the model first."
+                }
+
+            df = pd.read_csv(summary_path)
+            return {
+                "status": "success",
+                "data": df.to_dict(orient="records")
+            }
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+    

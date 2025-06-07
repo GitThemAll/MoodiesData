@@ -8,3 +8,8 @@ service = dbscan_service()
 def train_clustering_model():
     result = service.train_model()
     return jsonify(result)
+
+@clustering_bp.route("/dbscan-summary", methods=["GET"])
+def dbscan_summary():
+    result = service.get_cluster_summary_json()
+    return jsonify(result)

@@ -8,7 +8,6 @@ import seaborn as sns
 from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.metrics import silhouette_score
-from sklearn.neighbors import NearestNeighbors
 from sklearn.cluster import KMeans
 
 class dbscan_model:  
@@ -100,7 +99,6 @@ class dbscan_model:
         df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
         cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True)
         cluster_summary.to_csv(output_path, index=True)
-        return output_path
     
     def assign_cluster_labels(self):
         """
@@ -125,6 +123,14 @@ class dbscan_model:
         cluster_counts_df = cluster_counts.reset_index()
         cluster_counts_df.columns = ['Cluster', 'Num_Customers']
         return cluster_counts_df    
+    
+    def get_cluster_summary_json(self):
+        if 'DBSCAN_Cluster' not in self.df.columns:
+            self.assign_cluster_labels()
+        
+        df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
+        cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True).reset_index()
+        return cluster_summary.to_dict(orient='records')
 
     # def tune_dbscan(self, X, eps_values, min_samples_values):
     #     best_score = -1
