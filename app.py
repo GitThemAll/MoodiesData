@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from interfaces.api.user_routes import user_bp
 from interfaces.api.discount_code_routes import discount_code_bp
 from interfaces.api.clustering_route import clustering_bp
@@ -12,11 +13,12 @@ import os
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, origins=["http://localhost:3000"])
     #register rooutes
     app.register_blueprint(user_bp)
     app.register_blueprint(discount_code_bp, url_prefix='/api')
     app.register_blueprint(clustering_bp, url_prefix="/ml")
-    
+
     db_path = get_database_path()
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -64,12 +64,12 @@ export default function SignupPage() {
       })
 
       console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
 
       const data = await response.json()
       console.log("Response data:", data)
 
-      if (response.status === 200) {
+      // Check for both 200 and 201 status codes (201 is standard for resource creation)
+      if (response.status === 200 || response.status === 201) {
         console.log("Signup successful, redirecting to dashboard")
 
         // Store token or user data if provided by your API
@@ -85,7 +85,7 @@ export default function SignupPage() {
         // Redirect to dashboard on successful signup
         router.push("/dashboard")
       } else {
-        // Handle non-200 responses
+        // Handle non-success responses
         console.log("Signup failed with status:", response.status)
         setError(data.message || `Signup failed with status ${response.status}. Please try again.`)
       }

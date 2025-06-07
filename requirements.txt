@@ -13,3 +13,4 @@ Flask-Migrate==4.1.0
 joblib-1.5.1 
 scikit-learn-1.7.0 
 threadpoolctl-3.6.0
+flask-cors-6.0.0

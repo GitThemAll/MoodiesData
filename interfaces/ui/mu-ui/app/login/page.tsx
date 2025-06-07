@@ -50,7 +50,6 @@ export default function LoginPage() {
       })
 
       console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
 
       const data = await response.json()
       console.log("Response data:", data)
@@ -78,7 +77,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error("Network error:", err)
       setError(
-        `Network error: ${err instanceof Error ? err.message : "Unknown error"}. Please check if the server is running on http://localhost:5000`,
+        `Network error: ${err instanceof Error ? err.message : "Unknown error"}. This is likely a CORS issue. Make sure your Python API has CORS enabled.`,
       )
     } finally {
       setIsLoading(false)
@@ -99,6 +98,7 @@ export default function LoginPage() {
                 <span className="block sm:inline text-sm">{error}</span>
               </div>
             )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
