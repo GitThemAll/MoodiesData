@@ -32,7 +32,7 @@ class dbscan_model:
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments",
             "Always Discount", "Always Free Shipping", "Never Discount", "Never Free Shipping", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
-            "click", "open", "Days since First Active", "Days since Last Active",
+            "click", "open", "Days since First Active",
             "Days since Profile Created On", "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
             "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl",
             "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006",
@@ -85,7 +85,7 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=8.5, min_samples=22) 
+        dbscan = DBSCAN(eps=9, min_samples=15) 
         #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
