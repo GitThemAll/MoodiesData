@@ -9,6 +9,8 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 from sklearn.metrics import silhouette_score
 from sklearn.neighbors import NearestNeighbors
+from sklearn.cluster import KMeans
+import hdbscan
 
 class dbscan_model:  
     df : DataFrame
@@ -18,6 +20,8 @@ class dbscan_model:
     labels : np.ndarray
     eps_range : np.ndarray
     min_samples_range : np.ndarray
+    kmeans_model : KMeans
+    kmeans_labels : np.ndarray
     
     def __init__(self):
         self.scaler = StandardScaler()
@@ -34,37 +38,39 @@ class dbscan_model:
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
-            "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
-            "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
+            "Recent City_utrecht", "Recent Country_be", "Recent Country_nl"            
         ]
+        # return [
+        #     "DaysSinceRecentOrder", "Nb Orders",
+        #     "Nb items", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
+        #     "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments", 
+        #     "Always Free Shipping", "Max Discount Percentage",
+        #     "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
+        #     "open", "Days since First Active", "Recent City_amersfoort",
+        #     "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
+        #     "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
+        #     "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
+        # ]
 
     def train_dbscan_model_seg(self):
         self.drop_correlated_columns()
         self.scale_model()
         self.reduce_dimensions()
         self.apply_dbscan()
+        #self.apply_hdbscan(min_cluster_size=500, min_samples=150)        
         self.decide_number_of_clusters()
         self.number_noise()
         self.evalutate_exclude_noise(self.labels)
         summary_path = self.summarize_clusters()
         print(f"Cluster summary saved to: {summary_path}")
-        # best_params, best_score, best_labels = self.tune_dbscan(self.x_reduced, self.eps_range, self.min_samples_range)
-        # if best_labels is not None:
-        #     self.labels = best_labels
-        #     print(f"✅ Best DBSCAN parameters: eps={best_params[0]}, min_samples={best_params[1]}")
-        #     print(f"📈 Silhouette Score: {best_score:.3f}")
+        self.save_labeled_customers()
+        print(self.get_cluster_sizes())
 
-        #     self.evalutate_exclude_noise()
-        #     summary_path = self.summarize_clusters()
-        #     print(f"📊 Cluster summary saved to: {summary_path}")
-        # else:
-        #     print("⚠️ No suitable DBSCAN configuration found.")
-        # self.apply_dbscan()
-        # self.decide_number_of_clusters()
-        # self.number_noise()
-        # self.evalutate_exclude_noise(self.labels)
-        # summary_path = self.summarize_clusters()
-        # print(f"Cluster summary saved to: {summary_path}")
+        #K-means
+        # self.train_kmeans()
+        # self.summarize_kmeans_clusters()
+        # self.analyze_kmeans_balance()
+        
         
 
     def get_dataset_from_file(self, dataset): 
@@ -84,7 +90,7 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=9.5, min_samples=15) 
+        dbscan = DBSCAN(eps=2.5, min_samples=800) 
         #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
@@ -111,6 +117,81 @@ class dbscan_model:
         cluster_summary.to_csv(output_path, index=True)
         return output_path
     
+    def assign_cluster_labels(self):
+        """
+        Adds the DBSCAN cluster labels to the original dataframe.
+        """
+        self.df['DBSCAN_Cluster'] = self.labels
+        return self.df
+
+    def save_labeled_customers(self, output_path='customers_with_clusters.csv'):
+        labeled_df = self.assign_cluster_labels()
+        labeled_df.to_csv(output_path, index=False)
+        return output_path
+
+    def get_cluster_sizes(self):
+        """
+        Returns the number of customers in each cluster (including noise).
+        """
+        if 'DBSCAN_Cluster' not in self.df.columns:
+            self.assign_cluster_labels()
+        
+        cluster_counts = self.df['DBSCAN_Cluster'].value_counts().sort_index()
+        cluster_counts_df = cluster_counts.reset_index()
+        cluster_counts_df.columns = ['Cluster', 'Num_Customers']
+        return cluster_counts_df
+    
+    # def apply_hdbscan(self, min_cluster_size=15, min_samples=10):
+    #     clusterer = hdbscan.HDBSCAN(
+    #         min_cluster_size=min_cluster_size,
+    #         min_samples=min_samples,
+    #         metric='euclidean',
+    #         prediction_data=True
+    #     )
+    #     self.labels = clusterer.fit_predict(self.x_reduced)
+    #     self.df['HDBSCAN_Cluster'] = self.labels
+    #     return self.labels
+    
+    # def train_kmeans(self, n_clusters=4):
+    #     x_scaled = self.scaler.fit_transform(self.scale_model())
+    #     pca = PCA(n_components='mle') 
+    #     X_pca = pca.fit_transform(x_scaled)
+    #     self.kmeans_model = KMeans(n_clusters=n_clusters, random_state=42, init='k-means++', n_init=10, max_iter=300)
+    #     self.kmeans_labels = self.kmeans_model.fit_predict(X_pca)
+    #     self.df['KMeans_Cluster'] = self.kmeans_labels
+
+    #     score = silhouette_score(X_pca, self.kmeans_labels)
+    #     print(f"KMeans Clustering with k={n_clusters}")
+    #     print(f"Silhouette Score: {score:.3f}")
+    #     return self.kmeans_labels
+
+    # def get_clustered_df(self):
+    #     return self.df
+    
+    # def summarize_kmeans_clusters(self):
+    #     output_path = 'kmeans_cluster_summary.csv'
+    #     summary = self.df.groupby('KMeans_Cluster').mean(numeric_only=True)
+    #     summary.to_csv(output_path)
+    #     return output_path
+
+    # def analyze_kmeans_balance(self):
+    #     if self.kmeans_labels is None:
+    #         print("⚠️ KMeans has not been trained yet.")
+    #         return
+
+    #     # Count customers per cluster
+    #     cluster_counts = self.df['KMeans_Cluster'].value_counts().sort_index()
+
+    #     # Calculate balance ratio
+    #     max_count = cluster_counts.max()
+    #     min_count = cluster_counts.min()
+    #     balance_ratio = min_count / max_count if max_count else 0
+
+    #     # Display distribution
+    #     print("\n📊 KMeans Cluster Distribution:")
+    #     print(cluster_counts)
+    #     print(f"\n🔍 Cluster Balance Ratio: {balance_ratio:.2f}")
+
     # def tune_dbscan(self, X, eps_values, min_samples_values):
     #     best_score = -1
     #     best_params = None

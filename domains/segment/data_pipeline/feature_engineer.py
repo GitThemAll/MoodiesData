@@ -127,14 +127,14 @@ class feature_engineering_segmentation:
         self.shopify_df = pd.get_dummies(self.shopify_df, columns=['Recent City'], drop_first=True)
         pass
     
-    def filter_top_skus_only(self, sku_list):
-        self.top_skus = [
-            "MS-006", "YM-006", "YH-006", "MM-008", "ML-009",
-            "SY-001", "SM-001", "SM-003", "EM-010", "EM-008"
-        ]
-        if not isinstance(sku_list, list):
-            return []
-        return [sku for sku in sku_list if sku in self.top_skus]
+    # def filter_top_skus_only(self, sku_list):
+    #     self.top_skus = [
+    #         "MS-006", "YM-006", "YH-006", "MM-008", "ML-009",
+    #         "SY-001", "SM-001", "SM-003", "EM-010", "EM-008"
+    #     ]
+    #     if not isinstance(sku_list, list):
+    #         return []
+    #     return [sku for sku in sku_list if sku in self.top_skus]
 
     def top_10_skus(self):    
 
