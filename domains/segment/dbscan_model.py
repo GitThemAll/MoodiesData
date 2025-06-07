@@ -27,14 +27,14 @@ class dbscan_model:
     
     def model_x_value(self) -> list:
         return [
-            "DaysSinceRecentOrder", "Nb Orders", "Amount Orders", "Avg Amount Orders",
+            "DaysSinceRecentOrder", "Nb Orders", "Amount Orders",
             "Nb items", "Avg item amount", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments",
             "Always Discount", "Always Free Shipping", "Never Discount", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
             "click", "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
-            "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl",
+            "Recent City_utrecht", "Recent Country_be", "Recent Country_nl",
             "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
         ]
 
