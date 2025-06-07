@@ -34,10 +34,10 @@ def create_app():
     # profiles = client.fetch_all_profiles()
     # client.save_profiles_to_csv(profiles, filename="klaviyo_customers.csv")
 
-    # seg_service = segment_service()
+    seg_service = segment_service()
     # seg_service.clean_data_static()
     # seg_service.feature_data_static()
-
+    seg_service.train_model()
 
     return app
 
