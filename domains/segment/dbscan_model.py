@@ -63,10 +63,12 @@ class dbscan_model:
             print(f"Silhouette Score: {sil_score:.3f}")
 
     def summarize_clusters(self):
+        output_path='dbscan_cluster_summary.csv'
+        self.df['DBSCAN_Cluster'] = self.apply_dbscan()
         df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
         cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True)
-        print(cluster_summary)
-        cluster_summary.to_csv('dbscan_cluster_summary.csv')
+        cluster_summary.to_csv(output_path, index=True)
+        return output_path
 
     # def plot_clusters(self):
     #     self.df['DBSCAN_Cluster'] = self.apply_dbscan
