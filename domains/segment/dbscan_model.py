@@ -30,13 +30,12 @@ class dbscan_model:
             "DaysSinceRecentOrder", "Nb Orders", "Amount Orders", "Avg Amount Orders",
             "Nb items", "Avg Nb items", "Avg item amount", "Max item amount", "PayMeth_Bancontact", "PayMeth_Card", "PayMeth_Ideal",
             "PayMeth_Klarna", "PayMeth_Other", "PayMeth_Pay Later", "PayMeth_shopify payments",
-            "Always Discount", "Always Free Shipping", "Never Discount", "Never Free Shipping", "Max Discount Percentage",
+            "Always Discount", "Always Free Shipping", "Never Discount", "Max Discount Percentage",
             "Same SKU more than once", "Email Marketing Consent", "Accepts Marketing",
-            "click", "open", "Days since First Active",
+            "click", "open", "Days since First Active", "Recent City_amersfoort",
             "Recent City_amsterdam", "Recent City_den haag", "Recent City_rotterdam",
             "Recent City_utrecht", "Recent Country_be", "Recent Country_de", "Recent Country_nl",
-            "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006",
-            "Recent City_amersfoort"
+            "EM-008", "EM-010", "ML-009", "MM-008", "MS-006", "SM-001", "SM-003", "SY-001", "YH-006", "YM-006"            
         ]
 
     def train_dbscan_model_seg(self):
