@@ -44,8 +44,7 @@ class dbscan_model:
         self.drop_correlated_columns()
         self.scale_model()
         self.reduce_dimensions()
-        self.apply_dbscan()
-               
+        self.apply_dbscan()               
         self.decide_number_of_clusters()
         self.number_noise()
         self.evalutate_exclude_noise(self.labels)
@@ -53,6 +52,12 @@ class dbscan_model:
         print(f"Cluster summary saved to: {summary_path}")
         self.save_labeled_customers()
         print(self.get_cluster_sizes())
+        self.remove_noise_and_retrain()
+
+        # #kmeans
+        # self.train_kmeans()
+        # self.summarize_kmeans_clusters()
+        # self.analyze_kmeans_balance()
 
         #hdbscan
         #self.apply_hdbscan(min_cluster_size=500, min_samples=150) 
@@ -74,7 +79,7 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=2.7, min_samples=800) 
+        dbscan = DBSCAN(eps=2.7, min_samples=600) 
         #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
@@ -131,29 +136,87 @@ class dbscan_model:
         df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
         cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True).reset_index()
         return cluster_summary.to_dict(orient='records')
+    
+    def remove_noise_and_retrain(self):
+        # Filter out noise
+        self.df['DBSCAN_Cluster'] = self.labels
+        self.df = self.df[self.df['DBSCAN_Cluster'] != -1]
+        
+        # Re-align PCA data
+        self.x_reduced = self.x_reduced[self.df.index]
+        
+        # Optionally reset index
+        self.df.reset_index(drop=True, inplace=True)
 
-    # def tune_dbscan(self, X, eps_values, min_samples_values):
-    #     best_score = -1
-    #     best_params = None
-    #     best_labels = None
+        # Re-run clustering
+        self.scale_model()
+        self.reduce_dimensions()
+        self.apply_dbscan()
 
-    #     for eps in eps_values:
-    #         for min_samples in min_samples_values:
-    #             model = DBSCAN(eps=eps, min_samples=min_samples)
-    #             labels = model.fit_predict(X)
+    # # #K-means            
+    
+    # def train_kmeans(self, n_clusters=4):
+    #     x_scaled = self.scaler.fit_transform(self.scale_model())
+    #     pca = PCA(n_components='mle') 
+    #     X_pca = pca.fit_transform(x_scaled)
+    #     self.kmeans_model = KMeans(n_clusters=n_clusters, random_state=42, init='k-means++', n_init=10, max_iter=300)
+    #     self.kmeans_labels = self.kmeans_model.fit_predict(X_pca)
+    #     self.df['KMeans_Cluster'] = self.kmeans_labels
 
-    #             # Exclude noise for scoring
-    #             if len(set(labels)) > 1 and np.sum(labels != -1) > 0:
-    #                 try:
-    #                     score = silhouette_score(X[labels != -1], labels[labels != -1])
-    #                     if score > best_score:
-    #                         best_score = score
-    #                         best_params = (eps, min_samples)
-    #                         best_labels = labels
-    #                 except:
-    #                     continue
+    #     score = silhouette_score(X_pca, self.kmeans_labels)
+    #     print(f"KMeans Clustering with k={n_clusters}")
+    #     print(f"Silhouette Score: {score:.3f}")
+    #     return self.kmeans_labels
 
-    #     return best_params, best_score, best_labels
+    # def get_clustered_df(self):
+    #     return self.df
+    
+    # def summarize_kmeans_clusters(self):
+    #     output_path = 'kmeans_cluster_summary.csv'
+    #     summary = self.df.groupby('KMeans_Cluster').mean(numeric_only=True)
+    #     summary.to_csv(output_path)
+    #     return output_path
+
+    # def analyze_kmeans_balance(self):
+    #     if self.kmeans_labels is None:
+    #         print(" KMeans has not been trained yet.")
+    #         return
+
+    #     # Count customers per cluster
+    #     cluster_counts = self.df['KMeans_Cluster'].value_counts().sort_index()
+
+    #     # Calculate balance ratio
+    #     max_count = cluster_counts.max()
+    #     min_count = cluster_counts.min()
+    #     balance_ratio = min_count / max_count if max_count else 0
+
+    #     # Display distribution
+    #     print("\n KMeans Cluster Distribution:")
+    #     print(cluster_counts)
+    #     print(f"\n Cluster Balance Ratio: {balance_ratio:.2f}")
+
+    def tune_dbscan(self, X, eps_values, min_samples_values):
+        best_score = -1
+        best_params = None
+        best_labels = None
+
+        for eps in eps_values:
+            for min_samples in min_samples_values:
+                model = DBSCAN(eps=eps, min_samples=min_samples)
+                labels = model.fit_predict(X)
+
+                # Exclude noise for scoring
+                if len(set(labels)) > 1 and np.sum(labels != -1) > 0:
+                    try:
+                        score = silhouette_score(X[labels != -1], labels[labels != -1])
+                        if score > best_score:
+                            best_score = score
+                            best_params = (eps, min_samples)
+                            best_labels = labels
+                    except:
+                        continue
+
+        return best_params, best_score, best_labels
 
     # def plot_clusters(self):
     #     self.df['DBSCAN_Cluster'] = self.apply_dbscan

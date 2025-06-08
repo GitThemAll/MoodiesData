@@ -37,7 +37,7 @@ def create_app():
     seg_service = segment_service()
     # seg_service.clean_data_static()
     # seg_service.feature_data_static()
-    # seg_service.train_model()
+    seg_service.train_model()
 
     return app
 
