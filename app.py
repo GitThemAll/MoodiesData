@@ -18,7 +18,6 @@ def create_app():
     app.register_blueprint(user_bp)
     app.register_blueprint(discount_code_bp, url_prefix='/api')
     app.register_blueprint(clustering_bp, url_prefix="/ml")
-    app.register_blueprint(clustering_bp, url_prefix="/ml")
 
     db_path = get_database_path()
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
@@ -38,7 +37,7 @@ def create_app():
     seg_service = segment_service()
     # seg_service.clean_data_static()
     # seg_service.feature_data_static()
-    seg_service.train_model()
+    # seg_service.train_model()
 
     return app
 

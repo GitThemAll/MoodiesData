@@ -13,3 +13,8 @@ def train_clustering_model():
 def dbscan_summary():
     result = service.get_cluster_summary_json()
     return jsonify(result)
+
+@clustering_bp.route("/distribution", methods=["GET"])
+def cluster_distribution():
+    result = service.get_cluster_distribution_summary()
+    return jsonify(result)
