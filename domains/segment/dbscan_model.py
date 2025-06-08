@@ -52,7 +52,7 @@ class dbscan_model:
         print(f"Cluster summary saved to: {summary_path}")
         self.save_labeled_customers()
         print(self.get_cluster_sizes())
-        self.remove_noise_and_retrain()
+        #self.remove_noise_and_retrain()
 
         # #kmeans
         # self.train_kmeans()
@@ -79,7 +79,7 @@ class dbscan_model:
         return self.x_reduced
     
     def apply_dbscan(self):
-        dbscan = DBSCAN(eps=2.7, min_samples=600) 
+        dbscan = DBSCAN(eps=2.7, min_samples=550) 
         #dbscan = DBSCAN(eps=9.5, min_samples=8) #not balanced
         self.labels = dbscan.fit_predict(self.reduce_dimensions())
     
@@ -112,7 +112,7 @@ class dbscan_model:
         self.df['DBSCAN_Cluster'] = self.labels
         return self.df
 
-    def save_labeled_customers(self, output_path='customers_with_clusters.csv'):
+    def save_labeled_customers(self, output_path='resources\data\processed\segment\customers_with_clusters.csv'):
         labeled_df = self.assign_cluster_labels()
         labeled_df.to_csv(output_path, index=False)
         return output_path
