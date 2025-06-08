@@ -24,6 +24,7 @@ class CLVFeatureEngineer:
         tz = orders_df["Created at"].dt.tz
         if tz is not None:
             cutoff_ts = cutoff_ts.tz_localize(tz)
+
         summarized_line_items = self._summarize_orders(orders_df)
         orders_df = self._make_orders_one_raw_per_customer(summarized_line_items, cutoff_ts)
         return orders_df
@@ -60,7 +61,7 @@ class CLVFeatureEngineer:
     
     ## step 5
     def _make_orders_one_raw_per_customer(self, orders_df: DataFrame, cutoff_date: pd.Timestamp) -> DataFrame:
-        
+
         df_pre_cutoff = orders_df[orders_df["Created at"] < cutoff_date]
         orders_df["year_month"] = orders_df["Created at"].dt.to_period("M").astype(str)
 
@@ -122,12 +123,13 @@ class CLVFeatureEngineer:
         return final_df
 
     ## klaviyo data feature engineering pipeline
-    def feature_engineer_klaviyo_data(self, klaviyo_df: DataFrame, reference_date: datetime) -> DataFrame:
-        dates_are_days_df = self._make_dates_days_since(klaviyo_df, reference_date)
+    def feature_engineer_klaviyo_data(self, klaviyo_df: DataFrame, cutoff_date: datetime) -> DataFrame:
+        cutoff_ts = pd.to_datetime(cutoff_date)
+        dates_are_days_df = self._make_dates_days_since(klaviyo_df, cutoff_ts)
         return dates_are_days_df
     
     ## step 7
-    def _make_dates_days_since(self, klaviyo_df: DataFrame, reference_date: datetime) -> DataFrame:
+    def _make_dates_days_since(self, klaviyo_df: DataFrame, reference_date: pd.Timestamp) -> DataFrame:
         klaviyo_df["_days_since_first_active"] = (reference_date - klaviyo_df["First Active"]).dt.days
         klaviyo_df["_days_since_last_active"] = (reference_date - klaviyo_df["Last Active"]).dt.days
         klaviyo_df["_days_profile_created_on"] = (reference_date - klaviyo_df["Profile Created On"]).dt.days
