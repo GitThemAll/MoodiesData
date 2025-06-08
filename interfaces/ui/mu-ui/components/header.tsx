@@ -24,9 +24,13 @@ export function Header() {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser)
+
+        // Check if the data is nested under 'user' key or direct
+        const userObj = parsedUser.user || parsedUser
+
         setUser({
-          name: parsedUser.username || "User",
-          email: parsedUser.email || "",
+          name: userObj.username || "User",
+          email: userObj.email || "",
         })
       } catch (error) {
         console.error("Failed to parse user data:", error)

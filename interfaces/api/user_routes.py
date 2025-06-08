@@ -19,6 +19,6 @@ def login():
     data = request.get_json()
     user = user_service.login_user(data['email'], data['password'])
     if user:
-        return jsonify({'message': 'Login successful', 'user': {'id': user.id, 'username': user.username}})
+        return jsonify({'message': 'Login successful', 'user': {'id': user.id, 'username': user.username, 'email': user.email}})
     else:
         return jsonify({'error': 'Invalid credentials'}), 401

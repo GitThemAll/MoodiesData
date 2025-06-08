@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,12 +12,82 @@ import { Icons } from "@/components/icons"
 
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [userData, setUserData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: "",
+  })
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        console.log("Stored user data:", parsedUser) // Debug log
+
+        // Check if the data is nested under 'user' key or direct
+        const userObj = parsedUser.user || parsedUser
+
+        // Extract first and last name from username if available
+        let firstName = ""
+        let lastName = ""
+
+        if (userObj.username) {
+          const nameParts = userObj.username.split(" ")
+          firstName = nameParts[0] || ""
+          lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
+        }
+
+        // Correctly extract email from the user object
+        const email = userObj.email || ""
+
+        console.log("Extracted email:", email) // Debug log
+
+        setUserData({
+          firstName,
+          lastName,
+          email,
+          company: userObj.company || "",
+        })
+      } catch (error) {
+        console.error("Failed to parse user data:", error)
+      }
+    }
+  }, [])
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
+    // Simulate API call
     setTimeout(() => {
+      // Update localStorage with new values
+      try {
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser)
+          const userObj = parsedUser.user || parsedUser
+
+          const updatedUser = {
+            ...userObj,
+            username: `${userData.firstName} ${userData.lastName}`.trim(),
+            email: userData.email,
+            company: userData.company,
+          }
+
+          // Store back in the same structure
+          if (parsedUser.user) {
+            localStorage.setItem("user", JSON.stringify({ ...parsedUser, user: updatedUser }))
+          } else {
+            localStorage.setItem("user", JSON.stringify(updatedUser))
+          }
+        }
+      } catch (error) {
+        console.error("Failed to update user data:", error)
+      }
+
       setIsLoading(false)
       alert("Profile updated successfully!")
     }, 1000)
@@ -31,6 +101,14 @@ export default function SettingsPage() {
       setIsLoading(false)
       alert("API tokens updated successfully!")
     }, 1000)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+    setUserData((prev) => ({
+      ...prev,
+      [id]: value,
+    }))
   }
 
   return (
@@ -51,20 +129,41 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" defaultValue="John" placeholder="Enter your first name" />
+                  <Input
+                    id="firstName"
+                    value={userData.firstName}
+                    onChange={handleInputChange}
+                    placeholder="Enter your first name"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" defaultValue="Doe" placeholder="Enter your last name" />
+                  <Input
+                    id="lastName"
+                    value={userData.lastName}
+                    onChange={handleInputChange}
+                    placeholder="Enter your last name"
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue="john@example.com" placeholder="Enter your email" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={userData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="company">Company</Label>
-                <Input id="company" defaultValue="Acme Inc." placeholder="Enter your company name" />
+                <Input
+                  id="company"
+                  value={userData.company}
+                  onChange={handleInputChange}
+                  placeholder="Enter your company name"
+                />
               </div>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}

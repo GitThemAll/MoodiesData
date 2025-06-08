@@ -120,6 +120,6 @@ class clean_segmentation:
         self.klaviyo_df = self.klaviyo_df[self.klaviyo_columns_to_keep]
     
     def to_csv(self):
-        self.shopify_df.to_csv("shopify_cleaned.csv")
-        self.klaviyo_df.to_csv("klaviyo_cleaned.csv")
+        self.shopify_df.to_csv("resources\data\processed\segment\shopify_cleaned.csv")
+        self.klaviyo_df.to_csv("resources\data\processed\segment\klaviyo_cleaned.csv")
     

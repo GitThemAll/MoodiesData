@@ -12,9 +12,9 @@ class segment_service:
     merged_traning_data_seg : DataFrame
     shopify_data_path = "resources\data\processed\segment\orders_merge.csv"
     klaviyo_data_path = "resources\data\processed\segment\Klaviyo_everyone_email.csv"
-    cleaned_shopify_path = "shopify_cleaned.csv"
-    cleaned_klaviyo_path = "klaviyo_cleaned.csv"
-    merged_final_data = "order_klav_merge_customerLevel.csv"
+    cleaned_shopify_path = "resources\data\processed\segment\shopify_cleaned.csv"
+    cleaned_klaviyo_path = "resources\data\processed\segment\klaviyo_cleaned.csv"
+    merged_final_data = "resources\data\processed\segment\order_klav_merge_customerLevel.csv"
 
     def __init__(self):
         self.set_data_static()

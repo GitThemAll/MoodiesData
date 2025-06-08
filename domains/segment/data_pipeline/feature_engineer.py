@@ -242,7 +242,7 @@ class feature_engineering_segmentation:
         merged_df.rename(columns={'Historic Customer Lifetime Value': 'CLV'}, inplace=True)
         drop = ["List SKU"]
         # Save merged file
-        merged_df.to_csv("order_klav_merge_customerLevel.csv", index=False)
+        merged_df.to_csv("resources\data\processed\segment\order_klav_merge_customerLevel.csv", index=False)
 
 
     

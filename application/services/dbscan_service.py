@@ -10,7 +10,7 @@ class dbscan_service:
     def __init__(self):
         try:
             # Load the dataset
-            self.merged_dataset = pd.read_csv('order_klav_merge_customerLevel.csv')
+            self.merged_dataset = pd.read_csv('resources\data\processed\segment\order_klav_merge_customerLevel.csv')
         except FileNotFoundError:
             self.merged_dataset = None
 
@@ -52,7 +52,7 @@ class dbscan_service:
         """
         try:
             summary_path = os.path.join(
-                "dbscan_cluster_summary.csv"
+                "resources", "data", "processed", "segment", "dbscan_cluster_summary.csv"
             )
 
             if not os.path.exists(summary_path):
