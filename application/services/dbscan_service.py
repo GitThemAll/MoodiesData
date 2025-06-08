@@ -112,4 +112,82 @@ class dbscan_service:
 
         except Exception as e:
             return {"status": "error", "message": str(e)}
-    
+
+    def get_avg_items_per_cluster(self):
+        try:
+            file_path = os.path.join(
+                "resources", "data", "processed", "segment", "customers_with_clusters.csv"
+            )
+            if not os.path.exists(file_path):
+                return {"status": "error", "message": "Customer cluster data not found."}
+
+            df = pd.read_csv(file_path)
+
+            # Group by cluster and calculate average items
+            grouped = df.groupby("DBSCAN_Cluster")["Nb items"].mean().reset_index()
+
+            # Optional: map cluster ID to segment names
+            cluster_labels = {
+                0: "High Value",
+                1: "Regular",
+                2: "At Risk",
+                3: "New"
+            }
+
+            data = []
+            for _, row in grouped.iterrows():
+                cluster_id = int(row["DBSCAN_Cluster"])
+                label = cluster_labels.get(cluster_id, f"Cluster {cluster_id}")
+                data.append({
+                    "label": label,
+                    "avg_items": round(row["Nb items"], 2)
+                })
+
+            return {"status": "success", "data": data}
+
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+        
+    def get_cluster_distribution_by_city(self):
+        try:
+            file_path = os.path.join(
+                "resources", "data", "processed", "segment", "customers_with_clusters.csv"
+            )
+            if not os.path.exists(file_path):
+                return {"status": "error", "message": "Clustered customer data not found."}
+
+            df = pd.read_csv(file_path)
+
+            # City columns are one-hot encoded — map them
+            city_columns = [
+                "Recent City_amersfoort",
+                "Recent City_amsterdam",
+                "Recent City_den haag",
+                "Recent City_rotterdam",
+                "Recent City_utrecht"
+            ]
+
+            cluster_labels = {
+                0: "High Value",
+                1: "Regular",
+                2: "At Risk",
+                3: "New"
+            }
+
+            city_cluster_counts = []
+
+            for city_col in city_columns:
+                city_name = city_col.replace("Recent City_", "").replace("_", " ").title()
+                city_df = df[df[city_col] == 1]
+
+                cluster_counts = city_df["DBSCAN_Cluster"].value_counts().to_dict()
+
+                entry = {"city": city_name}
+                for cluster_id, label in cluster_labels.items():
+                    entry[label] = cluster_counts.get(cluster_id, 0)
+                city_cluster_counts.append(entry)
+
+            return {"status": "success", "data": city_cluster_counts}
+
+        except Exception as e:
+            return {"status": "error", "message": str(e)}

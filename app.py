@@ -48,9 +48,7 @@ if __name__ == '__main__':
 
 def get_database_path(filename: str = "mydatabase.db") -> str:
     """
-    Returns the absolute path to the SQLite database file,
-    stored in the 'resources/data' folder.
-    Ensures the folder exists.
+    Returns the absolute path to the SQLite database file
 
     :param filename: The database filename (default: 'mydatabase.db')
     :return: Absolute file path to use in SQLAlchemy URI
