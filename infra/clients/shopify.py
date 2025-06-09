@@ -91,3 +91,34 @@ class ShopifyClient:
 
     def get_shopify_response(self):
         return requests.get(self.base_url, headers=self.headers)
+    
+    def get_orders_between(self, start_date: str, end_date: str):
+        """Fetch orders from Shopify between start_date and end_date."""
+        url = f"{self.base_url}/orders.json"
+        params = {
+            "status": "any",
+            "limit": 250,
+            "created_at_min": f"{start_date}T00:00:00Z",
+            "created_at_max": f"{end_date}T23:59:59Z"
+        }
+
+        orders = []
+        while url:
+            print(f"Fetching: {url}")
+            response = requests.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            batch = data.get("orders", [])
+            orders.extend(batch)
+
+            # Handle pagination
+            link_header = response.headers.get("Link", "")
+            url = None
+            if 'rel="next"' in link_header:
+                for part in link_header.split(","):
+                    if 'rel="next"' in part:
+                        url = part.split(";")[0].strip()[1:-1]
+                        break
+            params = None  # Only include params on the first request
+
+        return orders
