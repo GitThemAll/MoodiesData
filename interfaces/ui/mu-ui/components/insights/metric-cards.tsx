@@ -94,30 +94,45 @@ export function MetricCards() {
     try {
       console.log("Searching for SKU:", skuNumber)
 
-      // Fetch all SKU revenue data
+      // Fetch SKU revenue data
       const revenueResponse = await fetch(`http://localhost:5000/insights/shopify/sku-revenue`)
 
-      if (!revenueResponse.ok) {
-        throw new Error(`HTTP error! status: ${revenueResponse.status}`)
+      // Fetch SKU order count data
+      const orderCountResponse = await fetch(`http://localhost:5000/insights/shopify/sku-order-count`)
+
+      if (!revenueResponse.ok || !orderCountResponse.ok) {
+        throw new Error(
+          `HTTP error! Revenue status: ${revenueResponse.status}, Order count status: ${orderCountResponse.status}`,
+        )
       }
 
       const revenueData = await revenueResponse.json()
-      console.log("All SKU Revenue data:", revenueData)
+      const orderCountData = await orderCountResponse.json()
 
-      // Check if the SKU exists in the response data
+      console.log("SKU Revenue data:", revenueData)
+      console.log("SKU Order count data:", orderCountData)
+
+      // Check if the SKU exists in the revenue data
       if (revenueData.data && skuNumber in revenueData.data) {
         const revenue = revenueData.data[skuNumber]
         console.log("Found revenue for SKU:", revenue)
         setSkuRevenue(formatCurrency(revenue))
         setSkuError("")
       } else {
-        console.log("SKU not found in data")
+        console.log("SKU not found in revenue data")
         setSkuRevenue("$0")
         setSkuError("SKU not found")
       }
 
-      // For now, set orders to "N/A" until order count endpoint is available
-      setSkuOrders("N/A")
+      // Check if the SKU exists in the order count data
+      if (orderCountData.data && skuNumber in orderCountData.data) {
+        const orderCount = orderCountData.data[skuNumber]
+        console.log("Found order count for SKU:", orderCount)
+        setSkuOrders(orderCount.toString())
+      } else {
+        console.log("SKU not found in order count data")
+        setSkuOrders("0")
+      }
     } catch (error) {
       console.error("Error fetching SKU data:", error)
       setSkuRevenue("$0")

@@ -1,6 +1,7 @@
 from infra.clients.shopify import ShopifyClient
 from domains.insights.filters.get_top_skus_metrics import compute_top_sku_stats
 from domains.insights.filters.get_top_skus_metrics import revenue_per_sku
+from domains.insights.filters.get_top_skus_metrics import order_count_per_sku
 import os 
 import json
 
@@ -45,3 +46,23 @@ class SkuStatsService:
                 "status": "error",
                 "message": str(e)
             }
+        
+    def get_order_count_per_sku(self):
+        try:
+            # orders = self.shopify.get_orders_between(start, end)            
+            # result = order_count_per_sku(orders)
+
+            file_path = os.path.join("resources", "data", "processed", "insights", "order_count_per_sku.json")
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return {
+                "status": "success",
+                "data": data
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": str(e)
+            }
+        
+    

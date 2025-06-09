@@ -56,3 +56,16 @@ def revenue_per_sku(orders: list[dict]) -> dict[str, float]:
                     continue  # skip malformed values
 
     return {sku: float(amount) for sku, amount in sku_revenue.items()}
+
+def order_count_per_sku(orders: list[dict]) -> dict[str, int]:
+    sku_counts = defaultdict(int)
+
+    for order in orders:
+        seen_skus = set() #set type indicated to avoind duplicating sku count
+        for item in order.get("line_items", []):
+            sku = item.get("sku")
+            if sku and sku not in seen_skus:
+                sku_counts[sku] += 1
+                seen_skus.add(sku)
+
+    return dict(sku_counts)
