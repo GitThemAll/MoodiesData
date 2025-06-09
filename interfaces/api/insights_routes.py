@@ -1,4 +1,3 @@
-from fastapi import APIRouter, Query
 from flask import Blueprint, jsonify, request
 from application.services.insights_service import DiscountCodeService
 from application.services.get_top_sku_stats import SkuStatsService

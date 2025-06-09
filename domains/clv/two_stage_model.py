@@ -104,7 +104,6 @@ class TwoStageCLVModel:
         y_prob = self.training_classifier.predict_proba(self.X_test)[:, 1]
         y_reg = self.training_regressor.predict(self.X_test)
         y_pred = y_prob * y_reg
-        y_pred = y_pred.round()
         # Compute metrics
         self.mae = mean_absolute_error(self.y_test, y_pred)
         self.rmse = root_mean_squared_error(self.y_test, y_pred)
@@ -113,7 +112,7 @@ class TwoStageCLVModel:
     def _save_models_and_metadata(self) -> None:
         # Create version identifier
         self.version = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-        version_dir = os.path.join(self.BASE_DIR, self.VERSION_DIR, self.version)
+        version_dir = os.path.join(self.BASE_DIR,self.target, self.VERSION_DIR, self.version)
         os.makedirs(version_dir, exist_ok=True, mode=0o755)
 
         # Save models
@@ -144,7 +143,7 @@ class TwoStageCLVModel:
         }
 
     def _load_models(self, version: str) -> Tuple[LGBMClassifier, LGBMRegressor]:
-        version_dir = os.path.join(self.BASE_DIR, self.VERSION_DIR, version)
+        version_dir = os.path.join(self.BASE_DIR, self.target, self.VERSION_DIR, version)
         clf = joblib.load(os.path.join(version_dir, 'classifier.pkl'))
         reg = joblib.load(os.path.join(version_dir, 'regressor.pkl'))
         return clf, reg
@@ -155,8 +154,8 @@ class TwoStageCLVModel:
         prob_buy = self.classifier.predict_proba(features)[:, 1]
         expected_spend = self.regressor.predict(features)
         result = prob_buy * expected_spend
-        result = result.round(2)
+        result = result
         return pd.DataFrame({
             "Email": emails,
-            "Prediction": result
+            f"{self.target}": result
         })

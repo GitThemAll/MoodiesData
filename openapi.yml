@@ -1,0 +1,139 @@
+url: http://localhost:5000
+paths:
+  /clv/predictions/next-three-months:
+    get:
+      summary: Get predictions for the next three months
+      responses:
+        '200':
+          description: A JSON array of next three months CLV predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NextThreeMonthsPrediction'
+        '202':
+          description: Predictions are being generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+  /clv/predictions/next-month:
+    get:
+      summary: Get prediction for the next month
+      responses:
+        '200':
+          description: A JSON array of next month CLV predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NextMonthPrediction'
+        '202':
+          description: Prediction is being generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+  /clv/predictions:
+    get:
+      summary: Get predictions for next one and three months
+      responses:
+        '200':
+          description: A JSON array of combined CLV predictions for next one and three months
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CombinedPrediction'
+        '202':
+          description: Some predictions are still being generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+  /clv/lifetime:
+    get:
+      summary: Get lifetime CLV for all customers
+      responses:
+        '200':
+          description: A JSON array of lifetime CLV records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LifetimeClvRecord'
+  /clv/lifetime_clv_distribution:
+    get:
+      summary: Get distribution of lifetime CLV values in predefined ranges
+      responses:
+        '200':
+          description: A JSON object mapping CLV ranges to customer counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifetimeClvDistribution'
+components:
+  schemas:
+    PendingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: pending
+        message:
+          type: string
+          example: Predictions are being generated. Please check back in a few minutes.
+    NextThreeMonthsPrediction:
+      type: object
+      properties:
+        Email:
+          type: string
+          format: email
+        next_3_months_spend:
+          type: number
+          format: float
+          description: Predicted spend over the next three months
+    NextMonthPrediction:
+      type: object
+      properties:
+        Email:
+          type: string
+          format: email
+        next_1_months_spend:
+          type: number
+          format: float
+          description: Predicted spend over the next month
+    CombinedPrediction:
+      type: object
+      properties:
+        Email:
+          type: string
+          format: email
+        next_1_months_spend:
+          type: number
+          format: float
+        next_3_months_spend:
+          type: number
+          format: float
+    LifetimeClvRecord:
+      type: object
+      properties:
+        Email:
+          type: string
+          format: email
+        Lifetime CLV:
+          type: number
+          format: float
+          description: Lifetime customer value
+    LifetimeClvDistribution:
+      type: object
+      properties:
+        distribution:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Mapping of CLV range labels to customer counts
