@@ -4,6 +4,7 @@ from interfaces.api.user_routes import user_bp
 from interfaces.api.insights_routes import insights_bp
 from interfaces.api.clustering_route import clustering_bp
 from interfaces.api.sku_metrics_routes import sku_metrics_bp
+from interfaces.api.clv_route import clv_bp
 from infra.clients.shopify import ShopifyClient
 from infra.clients.klaviyo import KlaviyoClient
 from application.services.segment_service import segment_service
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(insights_bp, url_prefix='/insights')
     app.register_blueprint(clustering_bp, url_prefix="/ml")
     app.register_blueprint(sku_metrics_bp, url_prefix='/insights')
+    app.register_blueprint(clv_bp, url_prefix='/clv')
 
     app.register_blueprint(npd_blueprint)
     db_path = get_database_path()

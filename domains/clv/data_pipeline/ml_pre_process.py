@@ -41,7 +41,8 @@ class CLVModelPreProcess:
     def pre_process_data(
         self,
         data: DataFrame,
-        target_variable: str
+        target_variable: str,
+        target_amount_of_months: int
     ) -> DataFrame:
         """
         Training pipeline:
@@ -52,7 +53,7 @@ class CLVModelPreProcess:
         """
         df = data.copy()
         # removes the last three month to avoid leakage during training
-        target_months = self._get_last_n_month_codes(df, 3)
+        target_months = self._get_last_n_month_codes(df, target_amount_of_months)
 
         df = self._create_target_variable(df, target_variable, target_months)
         df = self._remove_months(df, target_months)
@@ -61,7 +62,8 @@ class CLVModelPreProcess:
 
     def pre_process_inference_data(
         self,
-        data: DataFrame
+        data: DataFrame,
+        target_amount_of_months: int
     ) -> DataFrame:
         """
         Inference pipeline:
@@ -71,7 +73,7 @@ class CLVModelPreProcess:
         """
         df = data.copy()
         # removes the first three month so that the models gets the same width data as during training
-        drop_months = self._get_first_n_month_codes(df, 3)
+        drop_months = self._get_first_n_month_codes(df, target_amount_of_months)
 
         df = self._remove_months(df, drop_months)
         df = self._rename_month_columns(df)

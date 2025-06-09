@@ -18,10 +18,6 @@ class ClvService:
     orders_data_path = os.path.join("resources", "data", "raw", "clv", "orders")
     klaviyo_data_path = os.path.join("resources", "data", "raw", "clv", "klaviyo")
 
-    cutoff_date = date(2025, 1, 1)
-
-    model_target_variable = "next_3_months_spend"
-
     two_stage_model: TwoStageCLVModel = None
 
     def __init__(self):
@@ -55,8 +51,11 @@ class ClvService:
 
     def run_data_pipeline(
         self,
-        from_api: bool = False,
-        mode: str = 'train'  # 'train' or 'inference'
+        from_api: bool,
+        mode: str,  # 'train' or 'inference'
+        cutoff_date: date,
+        model_target_variable: str,
+        target_amount_of_months: int
     ) -> DataFrame:
         """
         Shared data loading & feature engineering, then branched pre-processing.
@@ -75,29 +74,34 @@ class ClvService:
         # Feature engineer
         feat_orders = self.clv_feature_engineer.feature_engineer_orders_data(
             cleaned_orders,
-            cutoff_date=self.cutoff_date
+            cutoff_date=cutoff_date,
         )
         feat_klaviyo = self.clv_feature_engineer.feature_engineer_klaviyo_data(
-            cleaned_klaviyo,
-            cutoff_date=datetime.today()
+            cleaned_klaviyo, cutoff_date=datetime.today()
         )
         combined = self.clv_feature_engineer.combine_data(feat_orders, feat_klaviyo)
         combined = self.clv_data_cleaner.fill_missing_values_after_merge(combined)
 
         # Branch to appropriate pre-processing
-        if mode == 'train':
+        if mode == "train":
             return self.clv_model_pre_process.pre_process_data(
                 combined,
-                target_variable=self.model_target_variable
+                target_variable=model_target_variable,
+                target_amount_of_months=target_amount_of_months,
             )
-        elif mode == 'inference':
-            return self.clv_model_pre_process.pre_process_inference_data(combined)
+        elif mode == "inference":
+            return self.clv_model_pre_process.pre_process_inference_data(
+                combined, target_amount_of_months=target_amount_of_months
+            )
 
-
-    def create_models(self, training_data: DataFrame):
+    def create_models(
+        self, 
+        training_data: DataFrame, 
+        model_target_variable: str
+    ) -> None:
         self.two_stage_model = TwoStageCLVModel(
             training_data=training_data,
-            target=self.model_target_variable,
+            target=model_target_variable,
         )
         self.two_stage_model.train()
 
@@ -105,10 +109,9 @@ class ClvService:
         # Ensure the input data is pre-processed
         return self.two_stage_model.predict(customer_data)
 
-
-# Example usage:
-clv_service = ClvService()
-train_df = clv_service.run_data_pipeline(from_api=False, mode='train')
-clv_service.create_models(train_df)
-inference_df = clv_service.run_data_pipeline(from_api=False, mode='inference')
-predictions = clv_service.predict(inference_df)
+    def get_lifetime_clv(self) -> DataFrame:
+        orders_df = self._load_orders_data(from_api=False)
+        cleaned_orders = self.clv_data_cleaner.clean_orders_for_training(orders_df)
+        lifetime_clv = cleaned_orders.groupby('Email', as_index=False)['Total'].sum()
+        lifetime_clv = lifetime_clv.rename(columns={'Total': 'Lifetime CLV'})
+        return lifetime_clv
