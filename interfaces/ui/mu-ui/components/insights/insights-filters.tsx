@@ -29,7 +29,7 @@ export function InsightsFilters() {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <div className="space-y-2">
-              <Label htmlFor="start-date" className="text-sm font-medium">
+              <Label htmlFor="start-date" className="text-sm font-medium text-gray-500">
                 Start Date
               </Label>
               <Input
@@ -37,13 +37,14 @@ export function InsightsFilters() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-[150px]"
+                className="w-[150px] bg-gray-100 text-gray-500 cursor-not-allowed"
+                disabled
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="end-date" className="text-sm font-medium">
+            <Label htmlFor="end-date" className="text-sm font-medium text-gray-500">
               End Date
             </Label>
             <Input
@@ -51,11 +52,12 @@ export function InsightsFilters() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-[150px]"
+              className="w-[150px] bg-gray-100 text-gray-500 cursor-not-allowed"
+              disabled
             />
           </div>
 
-          <Button onClick={handleApplyFilters} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleApplyFilters} className="bg-blue-600 hover:bg-blue-700" disabled>
             Apply Filters
           </Button>
 
