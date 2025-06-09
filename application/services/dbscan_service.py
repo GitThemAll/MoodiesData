@@ -235,6 +235,7 @@ class dbscan_service:
                 return {"status": "error", "message": "Customer cluster data not found."}
 
             df = pd.read_csv(file_path)
+            df = df[df['DBSCAN_Cluster'] != -1]  # Exclude noise cluster
 
             cluster_labels = {
                 0: "NL Dormant Value Buyers",
@@ -251,12 +252,11 @@ class dbscan_service:
                 customer_count = len(group)
                 total_revenue = group["Amount Orders"].sum()
 
-                # Prevent division by zero
                 accepted_marketing = group["Accepts Marketing"].sum()
                 total_clicks = group["click"].sum()
 
                 if accepted_marketing > 0:
-                    conversion_rate = total_clicks / accepted_marketing
+                    conversion_rate = total_clicks / customer_count if customer_count > 0 else 0.0
                 else:
                     conversion_rate = 0.0
 
