@@ -32,16 +32,6 @@ def discount_revenue():
     return jsonify(result)
 
 #shopify route 
-@insights_bp.route("/shopify/discount-usage", methods=["GET"])
-def discount_usage():
-    start = request.args.get("start")
-    end = request.args.get("end")
-
-    if not start or not end:
-        return jsonify({
-            "status": "error",
-            "message": "Missing 'start' or 'end' query parameters"
-        }), 400
-
-    result = service.get_discount_code_usage_count(start, end)
-    return jsonify(result)
+@insights_bp.route("/shopify/discount-order-count", methods=["GET"])
+def discount_order_count():
+    return jsonify(service.get_discount_code_order_count())
