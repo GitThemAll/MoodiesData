@@ -7,9 +7,12 @@ import { Search } from "lucide-react"
 
 interface NPDData {
   email: string
-  days_to_purchase: number
-  purchase_probability: number
-  predicted_date: string
+  predicted_days: number
+  predicted_next_purchase_date: string
+  avg_interval: number
+  avg_order_value: number
+  last_order_date: string
+  total_spend: number
 }
 
 export function NPDLeaderboard() {
@@ -23,105 +26,17 @@ export function NPDLeaderboard() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        // Mock data for NPD
-        const mockData: NPDData[] = [
-          {
-            email: "John@moodies.com",
-            days_to_purchase: 5,
-            purchase_probability: 0.87,
-            predicted_date: "2024-06-15",
-          },
-          {
-            email: "Silvia@moodies.com",
-            days_to_purchase: 12,
-            purchase_probability: 0.76,
-            predicted_date: "2024-06-22",
-          },
-          {
-            email: "Maria@moodies.com",
-            days_to_purchase: 8,
-            purchase_probability: 0.82,
-            predicted_date: "2024-06-18",
-          },
-          {
-            email: "David@moodies.com",
-            days_to_purchase: 15,
-            purchase_probability: 0.71,
-            predicted_date: "2024-06-25",
-          },
-          {
-            email: "Sarah@moodies.com",
-            days_to_purchase: 3,
-            purchase_probability: 0.92,
-            predicted_date: "2024-06-13",
-          },
-          {
-            email: "Michael@moodies.com",
-            days_to_purchase: 21,
-            purchase_probability: 0.65,
-            predicted_date: "2024-07-01",
-          },
-          {
-            email: "Emma@moodies.com",
-            days_to_purchase: 7,
-            purchase_probability: 0.84,
-            predicted_date: "2024-06-17",
-          },
-          {
-            email: "James@moodies.com",
-            days_to_purchase: 18,
-            purchase_probability: 0.68,
-            predicted_date: "2024-06-28",
-          },
-          {
-            email: "Lisa@moodies.com",
-            days_to_purchase: 10,
-            purchase_probability: 0.79,
-            predicted_date: "2024-06-20",
-          },
-          {
-            email: "Robert@moodies.com",
-            days_to_purchase: 14,
-            purchase_probability: 0.73,
-            predicted_date: "2024-06-24",
-          },
-          {
-            email: "Jennifer@moodies.com",
-            days_to_purchase: 6,
-            purchase_probability: 0.85,
-            predicted_date: "2024-06-16",
-          },
-          {
-            email: "William@moodies.com",
-            days_to_purchase: 25,
-            purchase_probability: 0.61,
-            predicted_date: "2024-07-05",
-          },
-          {
-            email: "Jessica@moodies.com",
-            days_to_purchase: 9,
-            purchase_probability: 0.81,
-            predicted_date: "2024-06-19",
-          },
-          {
-            email: "Christopher@moodies.com",
-            days_to_purchase: 16,
-            purchase_probability: 0.7,
-            predicted_date: "2024-06-26",
-          },
-          {
-            email: "Amanda@moodies.com",
-            days_to_purchase: 4,
-            purchase_probability: 0.89,
-            predicted_date: "2024-06-14",
-          },
-        ]
+        const response = await fetch("http://localhost:5000/npd-predictions")
 
-        // Sort by days to purchase (ascending)
-        const sortedData = mockData.sort((a, b) => a.days_to_purchase - b.days_to_purchase)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const result = await response.json()
+
+        // Sort by predicted_days (ascending - soonest purchases first)
+        const sortedData = result.sort((a: NPDData, b: NPDData) => a.predicted_days - b.predicted_days)
+
         setData(sortedData)
         setFilteredData(sortedData)
       } catch (err) {
@@ -143,12 +58,30 @@ export function NPDLeaderboard() {
       const filtered = data.filter(
         (customer) =>
           customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.days_to_purchase.toString().includes(searchTerm) ||
-          customer.predicted_date.includes(searchTerm),
+          customer.predicted_days.toString().includes(searchTerm) ||
+          customer.predicted_next_purchase_date.includes(searchTerm),
       )
       setFilteredData(filtered)
     }
   }, [searchTerm, data])
+
+  // Format date to readable format
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  // Calculate purchase probability based on predicted days (mock calculation)
+  const calculateProbability = (days: number) => {
+    // Simple inverse relationship - closer dates have higher probability
+    const maxDays = 100
+    const probability = Math.max(0.5, 1 - days / maxDays)
+    return Math.min(0.95, probability)
+  }
 
   if (loading) {
     return (
@@ -208,11 +141,13 @@ export function NPDLeaderboard() {
                 <TableRow key={customer.email} className="border-gray-700 hover:bg-gray-800">
                   <TableCell className="text-gray-400 text-center font-medium">{index + 1}</TableCell>
                   <TableCell className="text-white font-medium">{customer.email}</TableCell>
-                  <TableCell className="text-white text-center">{customer.days_to_purchase} days</TableCell>
+                  <TableCell className="text-white text-center">{customer.predicted_days} days</TableCell>
                   <TableCell className="text-white text-center">
-                    {(customer.purchase_probability * 100).toFixed(0)}%
+                    {(calculateProbability(customer.predicted_days) * 100).toFixed(0)}%
                   </TableCell>
-                  <TableCell className="text-white text-center">{customer.predicted_date}</TableCell>
+                  <TableCell className="text-white text-center">
+                    {formatDate(customer.predicted_next_purchase_date)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
