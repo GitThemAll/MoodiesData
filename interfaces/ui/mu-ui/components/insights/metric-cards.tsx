@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,42 @@ export function MetricCards() {
   const [isLoadingDiscount, setIsLoadingDiscount] = useState(false)
   const [isLoadingSku, setIsLoadingSku] = useState(false)
   const [discountError, setDiscountError] = useState("")
+  const [skuError, setSkuError] = useState("")
+
+  const [allDiscountRevenue, setAllDiscountRevenue] = useState<{ [key: string]: number }>({})
+  const [allDiscountOrders, setAllDiscountOrders] = useState<{ [key: string]: number }>({})
+  const [allSkuRevenue, setAllSkuRevenue] = useState<{ [key: string]: number }>({})
+  const [allSkuOrders, setAllSkuOrders] = useState<{ [key: string]: number }>({})
+
+  useEffect(() => {
+    fetchAllData()
+  }, [])
+
+  const fetchAllData = async () => {
+    try {
+      // Fetch all discount data
+      const [discountRevenueRes, discountOrdersRes, skuRevenueRes, skuOrdersRes] = await Promise.all([
+        fetch("http://localhost:5000/insights/shopify/discount-revenue"),
+        fetch("http://localhost:5000/insights/shopify/discount-order-count"),
+        fetch("http://localhost:5000/insights/shopify/sku-revenue"),
+        fetch("http://localhost:5000/insights/shopify/sku-order-count"),
+      ])
+
+      const [discountRevenueData, discountOrdersData, skuRevenueData, skuOrdersData] = await Promise.all([
+        discountRevenueRes.json(),
+        discountOrdersRes.json(),
+        skuRevenueRes.json(),
+        skuOrdersRes.json(),
+      ])
+
+      setAllDiscountRevenue(discountRevenueData.data || {})
+      setAllDiscountOrders(discountOrdersData.data || {})
+      setAllSkuRevenue(skuRevenueData.data || {})
+      setAllSkuOrders(skuOrdersData.data || {})
+    } catch (error) {
+      console.error("Error fetching all data:", error)
+    }
+  }
 
   // Format number as currency
   const formatCurrency = (value: number) => {
@@ -32,80 +68,50 @@ export function MetricCards() {
     setIsLoadingDiscount(true)
     setDiscountError("")
 
-    try {
-      console.log("Searching for discount code:", discountCode)
-
-      // Fetch discount revenue
-      const revenueResponse = await fetch(`http://localhost:5000/insights/shopify/discount-revenue`)
-      const revenueData = await revenueResponse.json()
-      console.log("Revenue response:", revenueData)
-
-      // Fetch discount order count
-      const orderCountResponse = await fetch(`http://localhost:5000/insights/shopify/discount-order-count`)
-      const orderCountData = await orderCountResponse.json()
-      console.log("Order count response:", orderCountData)
-
-      if (revenueResponse.ok && orderCountResponse.ok) {
-        // Check if the discount code exists in the response
-        if (revenueData.data && discountCode in revenueData.data) {
-          const revenue = revenueData.data[discountCode]
-          setDiscountRevenue(formatCurrency(revenue))
-        } else {
-          setDiscountRevenue("$0")
-          setDiscountError("Discount code not found")
-        }
-
-        // Check if the discount code exists in the order count response
-        if (orderCountData.data && discountCode in orderCountData.data) {
-          const orderCount = orderCountData.data[discountCode]
-          setDiscountItems(orderCount.toString())
-        } else {
-          setDiscountItems("0")
-        }
-      } else {
-        console.error(
-          "API error - Revenue status:",
-          revenueResponse.status,
-          "Order count status:",
-          orderCountResponse.status,
-        )
-        setDiscountRevenue("$0")
-        setDiscountItems("0")
-        setDiscountError("Failed to fetch discount data")
-      }
-    } catch (error) {
-      console.error("Error fetching discount data:", error)
+    // Use cached data instead of API call
+    if (discountCode in allDiscountRevenue) {
+      const revenue = allDiscountRevenue[discountCode]
+      setDiscountRevenue(formatCurrency(revenue))
+      setDiscountError("")
+    } else {
       setDiscountRevenue("$0")
-      setDiscountItems("0")
-      setDiscountError("Network error")
-    } finally {
-      setIsLoadingDiscount(false)
+      setDiscountError("Discount code not found")
     }
+
+    if (discountCode in allDiscountOrders) {
+      const orderCount = allDiscountOrders[discountCode]
+      setDiscountItems(orderCount.toString())
+    } else {
+      setDiscountItems("0")
+    }
+
+    setIsLoadingDiscount(false)
   }
 
   const searchSkuNumber = async () => {
     if (!skuNumber.trim()) return
 
     setIsLoadingSku(true)
-    try {
-      // Simulate API call - replace with your actual API endpoint
-      const response = await fetch(`http://localhost:5000/insights/sku/${skuNumber}`)
-      const data = await response.json()
+    setSkuError("")
 
-      if (response.ok) {
-        setSkuRevenue(data.revenue || "$0")
-        setSkuOrders(data.orders || "0")
-      } else {
-        setSkuRevenue("$0")
-        setSkuOrders("0")
-      }
-    } catch (error) {
-      console.error("Error fetching SKU data:", error)
+    // Use cached data instead of API call
+    if (skuNumber in allSkuRevenue) {
+      const revenue = allSkuRevenue[skuNumber]
+      setSkuRevenue(formatCurrency(revenue))
+      setSkuError("")
+    } else {
       setSkuRevenue("$0")
-      setSkuOrders("0")
-    } finally {
-      setIsLoadingSku(false)
+      setSkuError("SKU not found")
     }
+
+    if (skuNumber in allSkuOrders) {
+      const orderCount = allSkuOrders[skuNumber]
+      setSkuOrders(orderCount.toString())
+    } else {
+      setSkuOrders("0")
+    }
+
+    setIsLoadingSku(false)
   }
 
   return (
@@ -175,7 +181,11 @@ export function MetricCards() {
             </Button>
           </div>
           <div className="text-2xl font-bold">{isLoadingSku ? "Loading..." : skuRevenue}</div>
-          <p className="text-xs text-muted-foreground">{skuNumber ? `SKU: ${skuNumber}` : "Enter SKU to search"}</p>
+          {skuError ? (
+            <p className="text-xs text-red-500">{skuError}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{skuNumber ? `SKU: ${skuNumber}` : "Enter SKU to search"}</p>
+          )}
         </CardContent>
       </Card>
 

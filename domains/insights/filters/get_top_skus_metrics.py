@@ -37,3 +37,35 @@ def compute_top_sku_stats(orders: list[dict], top_skus: dict[str, str]) -> list[
         }
         for stat in sku_stats.values()
     ]
+
+#calculate revenu per sku using shopfy client
+def revenue_per_sku(orders: list[dict]) -> dict[str, float]:
+    sku_revenue = defaultdict(Decimal)
+
+    for order in orders:
+        for item in order.get("line_items", []):
+            sku = item.get("sku")
+            quantity = item.get("quantity", 0)
+            price = item.get("price", "0")
+
+            if sku:
+                try:
+                    revenue = Decimal(str(price)) * Decimal(quantity)
+                    sku_revenue[sku] += revenue
+                except:
+                    continue  # skip malformed values
+
+    return {sku: float(amount) for sku, amount in sku_revenue.items()}
+
+def order_count_per_sku(orders: list[dict]) -> dict[str, int]:
+    sku_counts = defaultdict(int)
+
+    for order in orders:
+        seen_skus = set() #set type indicated to avoind duplicating sku count
+        for item in order.get("line_items", []):
+            sku = item.get("sku")
+            if sku and sku not in seen_skus:
+                sku_counts[sku] += 1
+                seen_skus.add(sku)
+
+    return dict(sku_counts)
