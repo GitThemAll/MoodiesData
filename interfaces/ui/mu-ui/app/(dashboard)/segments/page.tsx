@@ -1,8 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ClusterDistribution } from "@/components/cluster-distribution"
-import { ClusterMetrics } from "@/components/cluster-metrics"
-import { ClusterCards } from "@/components/cluster-cards"
-import { ClustersByCity } from "@/components/clusters-by-city"
+import { ClusterDistribution } from "@/components/segments/cluster-distribution"
+import { ModelAccuracy } from "@/components/segments/model-accuracy"
+import { ClusterCards } from "@/components/segments/cluster-cards"
+import { ClustersByCity } from "@/components/segments/clusters-by-city"
 
 export default function SegmentsPage() {
   return (
@@ -25,11 +25,11 @@ export default function SegmentsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Items per Cluster</CardTitle>
-            <CardDescription>Average number of purchased items by cluster</CardDescription>
+            <CardTitle>Model Accuracy</CardTitle>
+            <CardDescription>Segmentation model performance and accuracy metrics</CardDescription>
           </CardHeader>
           <CardContent>
-            <ClusterMetrics />
+            <ModelAccuracy />
           </CardContent>
         </Card>
       </div>

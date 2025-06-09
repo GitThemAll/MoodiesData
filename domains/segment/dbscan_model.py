@@ -99,10 +99,17 @@ class dbscan_model:
             print(f"Silhouette Score: {sil_score:.3f}")
 
     def summarize_clusters(self):
-        output_path='dbscan_cluster_summary.csv'
+        output_path = 'resources/data/processed/segment/dbscan_cluster_summary.csv'
+        # Add the cluster labels to the dataset
         self.df['DBSCAN_Cluster'] = self.labels
+        # Filter out noise
         df_clusters = self.df[self.df['DBSCAN_Cluster'] != -1]
-        cluster_summary = df_clusters.groupby('DBSCAN_Cluster').mean(numeric_only=True)
+        # Restrict to only features used in training + cluster label
+        selected_features = self.model_x_value() + ["DBSCAN_Cluster"]
+        df_filtered = df_clusters[selected_features]
+        # Group and average only training features
+        cluster_summary = df_filtered.groupby("DBSCAN_Cluster").mean(numeric_only=True)
+        # Save to CSV
         cluster_summary.to_csv(output_path, index=True)
     
     def assign_cluster_labels(self):

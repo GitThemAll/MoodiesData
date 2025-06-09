@@ -10,7 +10,7 @@ class dbscan_service:
     def __init__(self):
         try:
             # Load the dataset
-            self.merged_dataset = pd.read_csv('resources\data\processed\segment\order_klav_merge_customerLevel.csv')
+            self.merged_dataset = pd.read_csv('resources/data/processed/segment/order_klav_merge_customerLevel.csv')
         except FileNotFoundError:
             self.merged_dataset = None
 
@@ -27,7 +27,7 @@ class dbscan_service:
             model.get_dataset_from_file(self.merged_dataset)
             model.train_dbscan_model_seg()
 
-             #Save cluster summary
+             # Save cluster summary
             output_path = os.path.join(
                 "resources", "data", "processed", "segment", "dbscan_cluster_summary.csv"
             )
@@ -45,11 +45,8 @@ class dbscan_service:
                 "status": "error",
                 "message": str(e)
             }
-        
+
     def get_cluster_summary_json(self):
-        """
-        Return the cluster summary as a JSON-serializable dictionary for API use.
-        """
         try:
             summary_path = os.path.join(
                 "resources", "data", "processed", "segment", "dbscan_cluster_summary.csv"
@@ -72,7 +69,7 @@ class dbscan_service:
                 "status": "error",
                 "message": str(e)
             }
-        
+
     def get_cluster_distribution_summary(self):
         try:
             summary_path = os.path.join(
@@ -84,19 +81,18 @@ class dbscan_service:
             df = pd.read_csv(summary_path)
             cluster_counts = df['DBSCAN_Cluster'].value_counts(normalize=True).sort_index() * 100
 
-            # Example mapping (replace with your real segment naming logic)
             label_map = {
-                0: "Regular",
-                1: "High Value",
-                2: "At Risk",
-                3: "New"
+                0: "NL Dormant Value Buyers",
+                1: "Low-Intent Pay-Later Shoppers",
+                2: "Highly Engaged Dutch Customers",
+                3: "Inactive Belgian Shoppers"
             }
 
             color_map = {
-                "Regular": "#88cc99",
-                "High Value": "#9b8df2",
-                "At Risk": "#f8c15c",
-                "New": "#ff8c1a"
+                "NL Dormant Value Buyers": "#8ecae6",
+                "Low-Intent Pay-Later Shoppers": "#f9c74f",
+                "Highly Engaged Dutch Customers": "#219ebc",
+                "Inactive Belgian Shoppers": "#ffb703"
             }
 
             distribution = []
@@ -122,16 +118,13 @@ class dbscan_service:
                 return {"status": "error", "message": "Customer cluster data not found."}
 
             df = pd.read_csv(file_path)
-
-            # Group by cluster and calculate average items
             grouped = df.groupby("DBSCAN_Cluster")["Nb items"].mean().reset_index()
 
-            # Optional: map cluster ID to segment names
             cluster_labels = {
-                0: "High Value",
-                1: "Regular",
-                2: "At Risk",
-                3: "New"
+                0: "NL Dormant Value Buyers",
+                1: "Low-Intent Pay-Later Shoppers",
+                2: "Highly Engaged Dutch Customers",
+                3: "Inactive Belgian Shoppers"
             }
 
             data = []
@@ -147,7 +140,7 @@ class dbscan_service:
 
         except Exception as e:
             return {"status": "error", "message": str(e)}
-        
+
     def get_cluster_distribution_by_city(self):
         try:
             file_path = os.path.join(
@@ -158,7 +151,6 @@ class dbscan_service:
 
             df = pd.read_csv(file_path)
 
-            # City columns are one-hot encoded — map them
             city_columns = [
                 "Recent City_amersfoort",
                 "Recent City_amsterdam",
@@ -168,10 +160,10 @@ class dbscan_service:
             ]
 
             cluster_labels = {
-                0: "High Value",
-                1: "Regular",
-                2: "At Risk",
-                3: "New"
+                0: "NL Dormant Value Buyers",
+                1: "Low-Intent Pay-Later Shoppers",
+                2: "Highly Engaged Dutch Customers",
+                3: "Inactive Belgian Shoppers"
             }
 
             city_cluster_counts = []

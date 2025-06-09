@@ -1,6 +1,8 @@
+"use client"
+
 import { redirect } from "next/navigation"
 
 export default function HomePage() {
-  // Redirect to dashboard - in a real app, check auth status
+  // Simple server-side redirect to dashboard
   redirect("/dashboard")
 }

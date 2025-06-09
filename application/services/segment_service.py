@@ -41,7 +41,7 @@ class segment_service:
         feature_seg.set_datasets(self.cleaned_shopify, self.cleaned_klaviyo)
         feature_seg.feature_local_data()
     
-    def train_model(self):
-        train_dbscan = dbscan_model()
-        train_dbscan.get_dataset_from_file(self.merged_traning_data_seg)
-        train_dbscan.train_dbscan_model_seg()
+    # def train_model(self):
+    #     train_dbscan = dbscan_model()
+    #     train_dbscan.get_dataset_from_file(self.merged_traning_data_seg)
+    #     train_dbscan.train_dbscan_model_seg()

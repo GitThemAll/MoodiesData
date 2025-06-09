@@ -39,7 +39,11 @@ export function Header() {
   }, [])
 
   const handleLogout = () => {
-    // In a real app, you would clear auth tokens/session here
+    // Clear auth tokens/session
+    localStorage.removeItem("authToken")
+    localStorage.removeItem("user")
+
+    // Redirect to login
     router.push("/login")
   }
 
