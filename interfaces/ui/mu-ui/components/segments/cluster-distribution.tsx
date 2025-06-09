@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from "recharts"
 
 interface ClusterData {
   color: string
@@ -32,7 +32,11 @@ export function ClusterDistribution() {
         const result: ApiResponse = await response.json()
 
         if (result.status === "success" && result.data) {
-          setData(result.data)
+          // Filter out "Cluster -1" data point and sort by value (descending)
+          const filteredData = result.data
+            .filter((item) => item.label !== "Cluster -1")
+            .sort((a, b) => b.value - a.value)
+          setData(filteredData)
         } else {
           throw new Error("Invalid response format")
         }
@@ -79,22 +83,32 @@ export function ClusterDistribution() {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-          label={({ label, value }) => `${label} ${value.toFixed(1)}%`}
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip formatter={(value) => [`${Number(value).toFixed(1)}%`, "Percentage"]} />
-      </PieChart>
+      <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 100, bottom: 20 }}>
+        <XAxis
+          type="number"
+          tick={{ fontSize: 12 }}
+          axisLine={{ stroke: "#e5e7eb" }}
+          domain={[0, "dataMax"]}
+          label={{ value: "Percentage (%)", position: "insideBottom", offset: -5 }}
+        />
+        <YAxis type="category" dataKey="label" tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} width={90} />
+        <Tooltip
+          formatter={(value) => [`${Number(value).toFixed(1)}%`, "Percentage"]}
+          labelStyle={{ color: "#374151" }}
+          contentStyle={{
+            backgroundColor: "#f9fafb",
+            border: "1px solid #e5e7eb",
+            borderRadius: "6px",
+          }}
+        />
+        <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Cluster Distribution" barSize={30}>
+          {data.map((entry, index) => {
+            // The highest percentage cluster is the first one (index 0) since we sorted in descending order
+            const color = index === 0 ? "#ef4444" : "rgb(198, 187, 206)"
+            return <Cell key={`cell-${index}`} fill={color} />
+          })}
+        </Bar>
+      </BarChart>
     </ResponsiveContainer>
   )
 }
