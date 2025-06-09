@@ -16,6 +16,7 @@ export function MetricCards() {
   const [isLoadingDiscount, setIsLoadingDiscount] = useState(false)
   const [isLoadingSku, setIsLoadingSku] = useState(false)
   const [discountError, setDiscountError] = useState("")
+  const [skuError, setSkuError] = useState("")
 
   // Format number as currency
   const formatCurrency = (value: number) => {
@@ -50,6 +51,7 @@ export function MetricCards() {
         if (revenueData.data && discountCode in revenueData.data) {
           const revenue = revenueData.data[discountCode]
           setDiscountRevenue(formatCurrency(revenue))
+          setDiscountError("")
         } else {
           setDiscountRevenue("$0")
           setDiscountError("Discount code not found")
@@ -87,22 +89,40 @@ export function MetricCards() {
     if (!skuNumber.trim()) return
 
     setIsLoadingSku(true)
-    try {
-      // Simulate API call - replace with your actual API endpoint
-      const response = await fetch(`http://localhost:5000/insights/sku/${skuNumber}`)
-      const data = await response.json()
+    setSkuError("")
 
-      if (response.ok) {
-        setSkuRevenue(data.revenue || "$0")
-        setSkuOrders(data.orders || "0")
-      } else {
-        setSkuRevenue("$0")
-        setSkuOrders("0")
+    try {
+      console.log("Searching for SKU:", skuNumber)
+
+      // Fetch all SKU revenue data
+      const revenueResponse = await fetch(`http://localhost:5000/insights/shopify/sku-revenue`)
+
+      if (!revenueResponse.ok) {
+        throw new Error(`HTTP error! status: ${revenueResponse.status}`)
       }
+
+      const revenueData = await revenueResponse.json()
+      console.log("All SKU Revenue data:", revenueData)
+
+      // Check if the SKU exists in the response data
+      if (revenueData.data && skuNumber in revenueData.data) {
+        const revenue = revenueData.data[skuNumber]
+        console.log("Found revenue for SKU:", revenue)
+        setSkuRevenue(formatCurrency(revenue))
+        setSkuError("")
+      } else {
+        console.log("SKU not found in data")
+        setSkuRevenue("$0")
+        setSkuError("SKU not found")
+      }
+
+      // For now, set orders to "N/A" until order count endpoint is available
+      setSkuOrders("N/A")
     } catch (error) {
       console.error("Error fetching SKU data:", error)
       setSkuRevenue("$0")
       setSkuOrders("0")
+      setSkuError("Network error")
     } finally {
       setIsLoadingSku(false)
     }
@@ -175,7 +195,11 @@ export function MetricCards() {
             </Button>
           </div>
           <div className="text-2xl font-bold">{isLoadingSku ? "Loading..." : skuRevenue}</div>
-          <p className="text-xs text-muted-foreground">{skuNumber ? `SKU: ${skuNumber}` : "Enter SKU to search"}</p>
+          {skuError ? (
+            <p className="text-xs text-red-500">{skuError}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{skuNumber ? `SKU: ${skuNumber}` : "Enter SKU to search"}</p>
+          )}
         </CardContent>
       </Card>
 
