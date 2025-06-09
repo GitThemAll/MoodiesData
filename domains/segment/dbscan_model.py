@@ -224,6 +224,114 @@ class dbscan_model:
                         continue
 
         return best_params, best_score, best_labels
+    
+    def get_avg_items_per_cluster(self, df):
+        grouped = df.groupby("DBSCAN_Cluster")["Nb items"].mean().reset_index()
+        cluster_labels = {
+            0: "NL Dormant Value Buyers",
+            1: "Low-Intent Pay-Later Shoppers",
+            2: "Highly Engaged Dutch Customers",
+            3: "Inactive Belgian Shoppers"
+        }
+        return [
+            {
+                "label": cluster_labels.get(int(row["DBSCAN_Cluster"]), f"Cluster {row['DBSCAN_Cluster']}"),
+                "avg_items": round(row["Nb items"], 2)
+            }
+            for _, row in grouped.iterrows()
+        ]
+
+    def get_cluster_distribution_summary(self, df):
+        cluster_counts = df['DBSCAN_Cluster'].value_counts(normalize=True).sort_index() * 100
+        label_map = {
+            0: "NL Dormant Value Buyers",
+            1: "Low-Intent Pay-Later Shoppers",
+            2: "Highly Engaged Dutch Customers",
+            3: "Inactive Belgian Shoppers"
+        }
+        color_map = {
+            "NL Dormant Value Buyers": "#8ecae6",
+            "Low-Intent Pay-Later Shoppers": "#f9c74f",
+            "Highly Engaged Dutch Customers": "#219ebc",
+            "Inactive Belgian Shoppers": "#ffb703"
+        }
+        return [
+            {
+                "label": label_map.get(cluster_id, f"Cluster {cluster_id}"),
+                "value": round(percent, 2),
+                "color": color_map.get(label_map.get(cluster_id, f"Cluster {cluster_id}"), "#ccc")
+            }
+            for cluster_id, percent in cluster_counts.items()
+        ]
+
+    def get_cluster_distribution_by_city(self, df):
+        city_columns = [
+            "Recent City_amersfoort",
+            "Recent City_amsterdam",
+            "Recent City_den haag",
+            "Recent City_rotterdam",
+            "Recent City_utrecht"
+        ]
+        cluster_labels = {
+            0: "NL Dormant Value Buyers",
+            1: "Low-Intent Pay-Later Shoppers",
+            2: "Highly Engaged Dutch Customers",
+            3: "Inactive Belgian Shoppers"
+        }
+        city_cluster_counts = []
+        for city_col in city_columns:
+            city_name = city_col.replace("Recent City_", "").replace("_", " ").title()
+            city_df = df[df[city_col] == 1]
+            cluster_counts = city_df["DBSCAN_Cluster"].value_counts().to_dict()
+            entry = {"city": city_name}
+            for cluster_id, label in cluster_labels.items():
+                entry[label] = cluster_counts.get(cluster_id, 0)
+            city_cluster_counts.append(entry)
+        return city_cluster_counts
+
+    def get_cluster_distribution_by_country(self, df):
+        country_columns = ["Recent Country_nl", "Recent Country_be"]
+        cluster_labels = {
+            0: "NL Dormant Value Buyers",
+            1: "Low-Intent Pay-Later Shoppers",
+            2: "Highly Engaged Dutch Customers",
+            3: "Inactive Belgian Shoppers"
+        }
+        country_cluster_counts = []
+        for country_col in country_columns:
+            country_name = country_col.replace("Recent Country_", "").upper()
+            country_df = df[df[country_col] == 1]
+            cluster_counts = country_df["DBSCAN_Cluster"].value_counts().to_dict()
+            entry = {"country": country_name}
+            for cluster_id, label in cluster_labels.items():
+                entry[label] = cluster_counts.get(cluster_id, 0)
+            country_cluster_counts.append(entry)
+        return country_cluster_counts
+
+    def get_cluster_dashboard_cards(self, df):
+        df = df[df['DBSCAN_Cluster'] != -1]  
+        cluster_labels = {
+            0: "NL Dormant Value Buyers",
+            1: "Low-Intent Pay-Later Shoppers",
+            2: "Highly Engaged Dutch Customers",
+            3: "Inactive Belgian Shoppers"
+        }
+        results = []
+        grouped = df.groupby("DBSCAN_Cluster")
+        for cluster_id, group in grouped:
+            label = cluster_labels.get(cluster_id, f"Cluster {cluster_id}")
+            customer_count = len(group)
+            total_revenue = group["Amount Orders"].sum()
+            accepted_marketing = group["Accepts Marketing"].sum()
+            total_clicks = group["click"].sum()
+            conversion_rate = (total_clicks / customer_count) if accepted_marketing > 0 else 0.0
+            results.append({
+                "label": label,
+                "customer_count": customer_count,
+                "total_revenue": f"${int(total_revenue):,}",
+                "conversion_rate": f"{round(conversion_rate * 100, 1)}%"
+            })
+        return results
 
     # def plot_clusters(self):
     #     self.df['DBSCAN_Cluster'] = self.apply_dbscan
