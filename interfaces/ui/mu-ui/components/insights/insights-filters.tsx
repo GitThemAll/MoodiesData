@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Calendar, RefreshCw } from "lucide-react"
 
 export function InsightsFilters() {
-  const [startDate, setStartDate] = useState("2024-01-01")
-  const [endDate, setEndDate] = useState("2024-12-31")
+  const [startDate, setStartDate] = useState("2024-03-01")
+  const [endDate, setEndDate] = useState("2025-06-01")
 
   const handleRefresh = () => {
     // Trigger refresh of all components

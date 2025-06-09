@@ -19,21 +19,21 @@ export default function InsightsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Top SKUs by Revenue</CardTitle>
-            <CardDescription>Highest performing products ranked by total revenue</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TopSkusRevenue />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
             <CardTitle>Top Discount Codes by Revenue</CardTitle>
             <CardDescription>Most profitable discount campaigns ranked by revenue</CardDescription>
           </CardHeader>
           <CardContent>
             <TopDiscountRevenue />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Top SKUs by Revenue</CardTitle>
+            <CardDescription>Highest performing products ranked by total revenue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TopSkusRevenue />
           </CardContent>
         </Card>
       </div>
