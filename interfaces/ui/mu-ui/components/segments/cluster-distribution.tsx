@@ -14,7 +14,11 @@ interface ApiResponse {
   status: string
 }
 
-export function ClusterDistribution() {
+interface ClusterDistributionProps {
+  selectedCluster?: string
+}
+
+export function ClusterDistribution({ selectedCluster }: ClusterDistributionProps) {
   const [data, setData] = useState<ClusterData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -50,6 +54,14 @@ export function ClusterDistribution() {
 
     fetchData()
   }, [])
+
+  // Map cluster IDs to labels for comparison
+  const clusterIdToLabel: { [key: string]: string } = {
+    "0": "NL Dormant Value Buyers",
+    "1": "Low-Intent Pay-Later Shoppers",
+    "2": "Highly Engaged Dutch Customers",
+    "3": "Inactive Belgian Shoppers",
+  }
 
   if (loading) {
     return (
@@ -103,8 +115,12 @@ export function ClusterDistribution() {
         />
         <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Cluster Distribution" barSize={30}>
           {data.map((entry, index) => {
-            // The highest percentage cluster is the first one (index 0) since we sorted in descending order
-            const color = index === 0 ? "#ef4444" : "rgb(198, 187, 206)"
+            // Check if this cluster matches the selected one
+            const selectedClusterLabel = selectedCluster ? clusterIdToLabel[selectedCluster] : null
+            const isSelected = selectedClusterLabel === entry.label
+
+            // Use red for selected cluster, lavender for others
+            const color = isSelected ? "#ef4444" : "rgb(198, 187, 206)"
             return <Cell key={`cell-${index}`} fill={color} />
           })}
         </Bar>

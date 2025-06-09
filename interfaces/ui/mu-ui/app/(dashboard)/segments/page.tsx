@@ -1,10 +1,19 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ClusterDistribution } from "@/components/segments/cluster-distribution"
-import { ModelAccuracy } from "@/components/segments/model-accuracy"
+import { ClusterDescription } from "@/components/segments/cluster-description"
 import { ClusterCards } from "@/components/segments/cluster-cards"
 import { ClustersByCountry } from "@/components/segments/clusters-by-country"
 
 export default function SegmentsPage() {
+  const [selectedCluster, setSelectedCluster] = useState<string>("2") // Default to Highly Engaged
+
+  const handleClusterChange = (clusterId: string) => {
+    setSelectedCluster(clusterId)
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -21,17 +30,17 @@ export default function SegmentsPage() {
             <CardDescription>Distribution of customers across different segments</CardDescription>
           </CardHeader>
           <CardContent>
-            <ClusterDistribution />
+            <ClusterDistribution selectedCluster={selectedCluster} />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Model Accuracy</CardTitle>
-            <CardDescription>Segmentation model performance and accuracy metrics</CardDescription>
+            <CardTitle>Cluster Description</CardTitle>
+            <CardDescription>Detailed insights and characteristics of each customer segment</CardDescription>
           </CardHeader>
           <CardContent>
-            <ModelAccuracy />
+            <ClusterDescription onClusterChange={handleClusterChange} />
           </CardContent>
         </Card>
       </div>
