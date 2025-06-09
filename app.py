@@ -10,7 +10,8 @@ from application.services.segment_service import segment_service
 from application.services.dbscan_service import dbscan_service
 from flask import Flask
 from infra.repositories.users_database import db
-import os 
+import os
+from interfaces.api.npd_controller import npd_blueprint 
 
 def create_app():
     app = Flask(__name__)
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(clustering_bp, url_prefix="/ml")
     app.register_blueprint(sku_metrics_bp, url_prefix='/insights')
 
+    app.register_blueprint(npd_blueprint)
     db_path = get_database_path()
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
