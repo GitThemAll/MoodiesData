@@ -9,44 +9,54 @@ interface SkuData {
   rank: number
 }
 
-interface ApiResponse {
-  data: SkuData[]
-  status: string
-}
-
 export function TopSkusRevenue() {
   const [data, setData] = useState<SkuData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Format number as currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    }).format(value)
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/insights/top-skus-revenue")
+        const response = await fetch("http://localhost:5000/insights/shopify/sku-revenue")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        const result: ApiResponse = await response.json()
+        const result = await response.json()
 
-        if (result.status === "success" && result.data) {
-          setData(result.data)
+        if (result.data) {
+          // Convert the object to array and sort by revenue (descending)
+          const skuArray = Object.entries(result.data)
+            .map(([sku, revenue]) => ({
+              sku,
+              revenue: typeof revenue === "number" ? revenue : 0,
+            }))
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 5) // Get top 5
+            .map((item, index) => ({
+              sku: item.sku,
+              revenue: formatCurrency(item.revenue),
+              rank: index + 1,
+            }))
+
+          setData(skuArray)
         } else {
           throw new Error("Invalid response format")
         }
       } catch (err) {
         console.error("Failed to fetch top SKUs:", err)
         setError(err instanceof Error ? err.message : "Failed to fetch data")
-        // Fallback data for demo
-        setData([
-          { sku: "SKU-001", revenue: "$45,230", rank: 1 },
-          { sku: "SKU-089", revenue: "$38,920", rank: 2 },
-          { sku: "SKU-156", revenue: "$32,450", rank: 3 },
-          { sku: "SKU-203", revenue: "$28,670", rank: 4 },
-          { sku: "SKU-078", revenue: "$24,890", rank: 5 },
-        ])
       } finally {
         setLoading(false)
       }

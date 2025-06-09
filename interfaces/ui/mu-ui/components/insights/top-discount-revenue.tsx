@@ -9,44 +9,54 @@ interface DiscountData {
   rank: number
 }
 
-interface ApiResponse {
-  data: DiscountData[]
-  status: string
-}
-
 export function TopDiscountRevenue() {
   const [data, setData] = useState<DiscountData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Format number as currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+    }).format(value)
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/insights/top-discount-revenue")
+        const response = await fetch("http://localhost:5000/insights/shopify/discount-revenue")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        const result: ApiResponse = await response.json()
+        const result = await response.json()
 
-        if (result.status === "success" && result.data) {
-          setData(result.data)
+        if (result.data) {
+          // Convert the object to array and sort by revenue (descending)
+          const discountArray = Object.entries(result.data)
+            .map(([discount_code, revenue]) => ({
+              discount_code,
+              revenue: typeof revenue === "number" ? revenue : 0,
+            }))
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 5) // Get top 5
+            .map((item, index) => ({
+              discount_code: item.discount_code,
+              revenue: formatCurrency(item.revenue),
+              rank: index + 1,
+            }))
+
+          setData(discountArray)
         } else {
           throw new Error("Invalid response format")
         }
       } catch (err) {
         console.error("Failed to fetch top discount codes:", err)
         setError(err instanceof Error ? err.message : "Failed to fetch data")
-        // Fallback data for demo
-        setData([
-          { discount_code: "SUMMER25", revenue: "$67,890", rank: 1 },
-          { discount_code: "WELCOME10", revenue: "$54,320", rank: 2 },
-          { discount_code: "FLASH50", revenue: "$43,210", rank: 3 },
-          { discount_code: "LOYALTY15", revenue: "$38,950", rank: 4 },
-          { discount_code: "NEWBIE20", revenue: "$32,670", rank: 5 },
-        ])
       } finally {
         setLoading(false)
       }
