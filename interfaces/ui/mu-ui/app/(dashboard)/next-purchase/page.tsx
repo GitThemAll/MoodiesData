@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { NPDLeaderboard } from "@/components/npd/npd-leaderboard"
+import { NPDMetrics } from "@/components/npd/npd-metrics"
 
 export default function NextPurchasePage() {
   return (
@@ -12,26 +12,15 @@ export default function NextPurchasePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Purchase Prediction
-            <Badge variant="secondary">Coming Soon</Badge>
-          </CardTitle>
-          <CardDescription>This component will provide next purchase date predictions and analysis.</CardDescription>
+          <CardTitle>NPD Leaderboard</CardTitle>
+          <CardDescription>Customers ranked by their predicted next purchase date</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">The Next Purchase Date component will include:</p>
-          <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-            <li>Individual customer purchase predictions</li>
-            <li>Purchase probability scores</li>
-            <li>Seasonal purchase patterns</li>
-            <li>Prediction confidence intervals</li>
-            <li>Recommended marketing timing</li>
-          </ul>
-          <Button variant="outline" disabled>
-            Configure Prediction Model
-          </Button>
+        <CardContent>
+          <NPDLeaderboard />
         </CardContent>
       </Card>
+
+      <NPDMetrics />
     </div>
   )
 }
