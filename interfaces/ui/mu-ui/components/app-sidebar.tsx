@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart3, Users, DollarSign, Calendar, Settings, Home } from "lucide-react"
+import { BarChart3, Users, DollarSign, Calendar, Settings, Home, Lightbulb } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +26,11 @@ const items = [
     title: "Customer Segments",
     url: "/segments",
     icon: Users,
+  },
+  {
+    title: "Insights",
+    url: "/insights",
+    icon: Lightbulb,
   },
   {
     title: "CLV Analysis",

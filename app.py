@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from interfaces.api.user_routes import user_bp
-from interfaces.api.discount_code_routes import discount_code_bp
+from interfaces.api.insights_routes import insights_bp
 from interfaces.api.clustering_route import clustering_bp
 from interfaces.api.sku_metrics_routes import sku_metrics_bp
 from infra.clients.shopify import ShopifyClient
@@ -17,7 +17,7 @@ def create_app():
     CORS(app, origins=["http://localhost:3000"])
     #register rooutes
     app.register_blueprint(user_bp)
-    app.register_blueprint(discount_code_bp, url_prefix='/api')
+    app.register_blueprint(insights_bp, url_prefix='/insights')
     app.register_blueprint(clustering_bp, url_prefix="/ml")
     app.register_blueprint(sku_metrics_bp, url_prefix='/insights')
 
