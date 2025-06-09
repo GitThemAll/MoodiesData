@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ClusterDistribution } from "@/components/segments/cluster-distribution"
 import { ModelAccuracy } from "@/components/segments/model-accuracy"
 import { ClusterCards } from "@/components/segments/cluster-cards"
-import { ClustersByCity } from "@/components/segments/clusters-by-city"
+import { ClustersByCountry } from "@/components/segments/clusters-by-country"
 
 export default function SegmentsPage() {
   return (
@@ -36,11 +36,11 @@ export default function SegmentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Clusters by City</CardTitle>
-          <CardDescription>Geographic distribution of customer segments</CardDescription>
+          <CardTitle>Clusters by Country</CardTitle>
+          <CardDescription>Geographic distribution of customer segments by country</CardDescription>
         </CardHeader>
         <CardContent>
-          <ClustersByCity />
+          <ClustersByCountry />
         </CardContent>
       </Card>
 

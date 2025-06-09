@@ -28,3 +28,13 @@ def items_per_cluster():
 def cluster_by_city():
     result = service.get_cluster_distribution_by_city()
     return jsonify(result)
+
+@clustering_bp.route("/country-distribution", methods=["GET"])
+def cluster_by_country():
+    result = service.get_cluster_distribution_by_country()
+    return jsonify(result)
+
+@clustering_bp.route("/clustering-cards-metrics", methods=["GET"])
+def cluster_metrics():
+    result = service.get_cluster_dashboard_cards()
+    return jsonify(result)
