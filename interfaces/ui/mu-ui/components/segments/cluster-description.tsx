@@ -21,7 +21,7 @@ const clusterData: { [key: string]: ClusterInfo } = {
     emoji: "🟠",
     description:
       "These are Dutch customers who used to be engaged, with relatively high item counts and purchases, but have been inactive for a long time.",
-    indicators: ["Country: Netherlands 🇳🇱", "Payment: iDEAL dominance", "Recent Order: Very stale (~474 days)"],
+    indicators: ["Country: Netherlands 🇳🇱", "Payment: iDEAL dominance", "Recent Order: Very stale"],
     insight: "Target with reactivation campaigns and loyalty perks.",
   },
   "1": {
@@ -36,7 +36,7 @@ const clusterData: { [key: string]: ClusterInfo } = {
     label: "Highly Engaged Dutch Customers",
     emoji: "🟣",
     description: "Your strongest audience. They're recent, active, repeat buyers and represent your core market.",
-    indicators: ["Country: Netherlands 🇳🇱", "Payment: Shopify Pay and iDEAL", "Recency: Recent activity (~283 days)"],
+    indicators: ["Country: Netherlands", "Payment: Shopify Pay and iDEAL", "Recency: Recent activity"],
     insight: "Nurture and reward these loyalists—upsell, subscribe, and retain.",
   },
   "3": {
@@ -44,7 +44,7 @@ const clusterData: { [key: string]: ClusterInfo } = {
     emoji: "🟢",
     description:
       "Low-frequency Belgian customers who haven't purchased recently. Mostly passive and aging in engagement.",
-    indicators: ["Country: Belgium 🇧🇪", "Payment: Bancontact", "Recency: Stale"],
+    indicators: ["Country: Belgium", "Payment: Bancontact", "Recency: Stale"],
     insight: "Try seasonal or culturally tailored campaigns to reengage.",
   },
 }
