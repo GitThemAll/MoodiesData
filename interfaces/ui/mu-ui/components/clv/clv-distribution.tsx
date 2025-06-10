@@ -111,7 +111,7 @@ export function CLVDistribution() {
           textAnchor="end"
           height={60}
           label={{
-            value: "CLV Range (€)",
+            value: "CLV Range ($)",
             position: "insideBottom",
             offset: -10,
             style: { textAnchor: "middle", fontSize: "14px", fontWeight: "500" },
@@ -129,7 +129,7 @@ export function CLVDistribution() {
         />
         <Tooltip
           formatter={(value) => [`${value} customers`, "Count"]}
-          labelFormatter={(label) => `CLV Range: €${label}`}
+          labelFormatter={(label) => `CLV Range: $${label}`}
           labelStyle={{ color: "#374151" }}
           contentStyle={{
             backgroundColor: "#f9fafb",

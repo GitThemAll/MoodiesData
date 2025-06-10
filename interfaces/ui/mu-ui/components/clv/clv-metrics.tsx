@@ -54,6 +54,7 @@ export function CLVMetrics() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchResult, setSearchResult] = useState("$0")
 
   // All useEffect hooks after useState
   useEffect(() => {
@@ -166,12 +167,12 @@ export function CLVMetrics() {
 
   const getHighestCLV = () => {
     const value = clvStats.highest[highestPeriod as keyof typeof clvStats.highest] || 0
-    return `€${value.toFixed(2)}`
+    return `$${value.toFixed(2)}`
   }
 
   const getAvgCLV = () => {
     const value = clvStats.average[avgPeriod as keyof typeof clvStats.average] || 0
-    return `€${value.toFixed(2)}`
+    return `$${value.toFixed(2)}`
   }
 
   const CustomDropdown = ({
