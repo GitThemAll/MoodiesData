@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 interface CLVData {
   email: string
@@ -12,6 +14,8 @@ interface CLVData {
 
 export function CLVLeaderboard() {
   const [data, setData] = useState<CLVData[]>([])
+  const [filteredData, setFilteredData] = useState<CLVData[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -119,6 +123,7 @@ export function CLVLeaderboard() {
         // Simulate API delay
         await new Promise((resolve) => setTimeout(resolve, 1000))
         setData(sortedData)
+        setFilteredData(sortedData)
       } catch (err) {
         console.error("Failed to fetch CLV data:", err)
         setError(err instanceof Error ? err.message : "Failed to fetch data")
@@ -129,6 +134,22 @@ export function CLVLeaderboard() {
 
     fetchData()
   }, [])
+
+  // Filter data based on search term
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredData(data)
+    } else {
+      const filtered = data.filter(
+        (customer) =>
+          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          customer.next_month.toString().includes(searchTerm) ||
+          customer.next_3_month.toString().includes(searchTerm) ||
+          customer.lifetime.toString().includes(searchTerm),
+      )
+      setFilteredData(filtered)
+    }
+  }, [searchTerm, data])
 
   if (loading) {
     return (
@@ -153,32 +174,53 @@ export function CLVLeaderboard() {
   }
 
   return (
-    <div className="bg-gray-900 rounded-lg p-4">
-      <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-        <Table>
-          <TableHeader className="sticky top-0 bg-gray-900 z-10">
-            <TableRow className="border-gray-700 hover:bg-gray-800">
-              <TableHead className="text-gray-300 font-medium w-8 text-center">#</TableHead>
-              <TableHead className="text-gray-300 font-medium">Email</TableHead>
-              <TableHead className="text-gray-300 font-medium text-center">Next month</TableHead>
-              <TableHead className="text-gray-300 font-medium text-center">Next 3 month</TableHead>
-              <TableHead className="text-gray-300 font-medium text-center">Lifetime</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((customer, index) => (
-              <TableRow key={customer.email} className="border-gray-700 hover:bg-gray-800">
-                <TableCell className="text-gray-400 text-center font-medium">{index + 1}</TableCell>
-                <TableCell className="text-white font-medium">{customer.email}</TableCell>
-                <TableCell className="text-white text-center">€{customer.next_month}</TableCell>
-                <TableCell className="text-white text-center">€{customer.next_3_month}</TableCell>
-                <TableCell className="text-white text-center">€{customer.lifetime}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+    <div className="space-y-4">
+      {/* Search Bar */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by email or CLV values..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="text-sm text-gray-500">
+          {filteredData.length} of {data.length} customers
+        </div>
       </div>
-      <div className="mt-2 text-xs text-gray-400 text-center">Showing {data.length} customers • Scroll to see more</div>
+
+      {/* Table */}
+      <div className="bg-gray-900 rounded-lg p-4">
+        <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          <Table>
+            <TableHeader className="sticky top-0 bg-gray-900 z-10">
+              <TableRow className="border-gray-700 hover:bg-gray-800">
+                <TableHead className="text-gray-300 font-medium w-8 text-center">#</TableHead>
+                <TableHead className="text-gray-300 font-medium">Email</TableHead>
+                <TableHead className="text-gray-300 font-medium text-center">Next month</TableHead>
+                <TableHead className="text-gray-300 font-medium text-center">Next 3 month</TableHead>
+                <TableHead className="text-gray-300 font-medium text-center">Lifetime</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((customer, index) => (
+                <TableRow key={customer.email} className="border-gray-700 hover:bg-gray-800">
+                  <TableCell className="text-gray-400 text-center font-medium">{index + 1}</TableCell>
+                  <TableCell className="text-white font-medium">{customer.email}</TableCell>
+                  <TableCell className="text-white text-center">€{customer.next_month}</TableCell>
+                  <TableCell className="text-white text-center">€{customer.next_3_month}</TableCell>
+                  <TableCell className="text-white text-center">€{customer.lifetime}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="mt-2 text-xs text-gray-400 text-center">
+          Showing {filteredData.length} customers • Scroll to see more
+        </div>
+      </div>
     </div>
   )
 }
