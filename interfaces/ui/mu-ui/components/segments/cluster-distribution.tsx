@@ -65,7 +65,7 @@ export function ClusterDistribution({ selectedCluster }: ClusterDistributionProp
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[300px]">
+      <div className="flex items-center justify-center h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
           <p className="text-sm text-gray-500">Loading cluster data...</p>
@@ -76,7 +76,7 @@ export function ClusterDistribution({ selectedCluster }: ClusterDistributionProp
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-[300px]">
+      <div className="flex items-center justify-center h-[400px]">
         <div className="text-center">
           <p className="text-sm text-red-500 mb-2">Error loading data</p>
           <p className="text-xs text-gray-400">{error}</p>
@@ -87,23 +87,17 @@ export function ClusterDistribution({ selectedCluster }: ClusterDistributionProp
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[300px]">
+      <div className="flex items-center justify-center h-[400px]">
         <p className="text-sm text-gray-500">No cluster data available</p>
       </div>
     )
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 100, bottom: 20 }}>
-        <XAxis
-          type="number"
-          tick={{ fontSize: 12 }}
-          axisLine={{ stroke: "#e5e7eb" }}
-          domain={[0, "dataMax"]}
-          label={{ value: "Percentage (%)", position: "insideBottom", offset: -5 }}
-        />
-        <YAxis type="category" dataKey="label" tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} width={90} />
+    <ResponsiveContainer width="100%" height={400}>
+      <BarChart layout="vertical" data={data} margin={{ top: 20, right: 30, left: 120, bottom: 20 }}>
+        <XAxis type="number" tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} domain={[0, "dataMax"]} />
+        <YAxis type="category" dataKey="label" tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} width={110} />
         <Tooltip
           formatter={(value) => [`${Number(value).toFixed(1)}%`, "Percentage"]}
           labelStyle={{ color: "#374151" }}
@@ -113,7 +107,7 @@ export function ClusterDistribution({ selectedCluster }: ClusterDistributionProp
             borderRadius: "6px",
           }}
         />
-        <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Cluster Distribution" barSize={30}>
+        <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Cluster Distribution" barSize={40}>
           {data.map((entry, index) => {
             // Check if this cluster matches the selected one
             const selectedClusterLabel = selectedCluster ? clusterIdToLabel[selectedCluster] : null
