@@ -12,6 +12,13 @@ interface CLVData {
   lifetime: number
 }
 
+interface CombinedCLVEntry {
+  email: string
+  next_month: number
+  next_3_month: number
+  lifetime: number
+}
+
 export function CLVLeaderboard() {
   const [data, setData] = useState<CLVData[]>([])
   const [filteredData, setFilteredData] = useState<CLVData[]>([])
@@ -19,137 +26,102 @@ export function CLVLeaderboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const sanitizeEmail = (rawEmail?: string) =>
+    rawEmail?.trim().toLowerCase().replace(/^'+|'+$/g, "") || ""
+
+  async function buildCLVLeaderboardData(): Promise<CombinedCLVEntry[]> {
+    try {
+      const [res1, res3, resLifetime] = await Promise.all([
+        fetch("http://localhost:5000/clv/predictions/next-month"),
+        fetch("http://localhost:5000/clv/predictions/next-three-months"),
+        fetch("http://localhost:5000/clv/lifetime"),
+      ])
+
+      if (!res1.ok || !res3.ok || !resLifetime.ok) {
+        throw new Error("Failed to fetch one or more CLV datasets")
+      }
+
+      const [data1, data3, dataLifetime] = await Promise.all([
+        res1.json(),
+        res3.json(),
+        resLifetime.json(),
+      ])
+
+      const map1 = new Map<string, number>()
+      const map3 = new Map<string, number>()
+      const mapL = new Map<string, number>()
+
+      data1.forEach((item: any) => {
+        const email = sanitizeEmail(item.Email)
+        if (email) map1.set(email, item["next_1_months_spend"] ?? 0)
+      })
+
+      data3.forEach((item: any) => {
+        const email = sanitizeEmail(item.Email)
+        if (email) map3.set(email, item["next_3_months_spend"] ?? 0)
+      })
+
+      dataLifetime.forEach((item: any) => {
+        const email = sanitizeEmail(item.Email)
+        if (email) mapL.set(email, item["Lifetime CLV"] ?? 0)
+      })
+
+      const allEmails = new Set<string>()
+      for (const map of [map1, map3, mapL]) {
+        for (const email of map.keys()) {
+          allEmails.add(email)
+        }
+      }
+
+      const leaderboard: CombinedCLVEntry[] = Array.from(allEmails).map((email) => {
+        return {
+          email,
+          next_month: map1.get(email) || 0,
+          next_3_month: map3.get(email) || 0,
+          lifetime: mapL.get(email) || 0,
+        }
+      })
+
+      return leaderboard.filter(
+        (entry) => entry.next_month > 0 || entry.next_3_month > 0 || entry.lifetime > 0,
+      )
+    } catch (error) {
+      console.error("Error building leaderboard:", error)
+      throw error
+    }
+  }
+
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        setLoading(true)
-        // Extended mock data with more customers
-        const mockData: CLVData[] = [
-          {
-            email: "John@moodies.com",
-            next_month: 15,
-            next_3_month: 45,
-            lifetime: 423,
-          },
-          {
-            email: "Silvia@moodies.com",
-            next_month: 39,
-            next_3_month: 200,
-            lifetime: 350,
-          },
-          {
-            email: "Maria@moodies.com",
-            next_month: 28,
-            next_3_month: 85,
-            lifetime: 298,
-          },
-          {
-            email: "David@moodies.com",
-            next_month: 22,
-            next_3_month: 67,
-            lifetime: 245,
-          },
-          {
-            email: "Sarah@moodies.com",
-            next_month: 18,
-            next_3_month: 54,
-            lifetime: 189,
-          },
-          {
-            email: "Michael@moodies.com",
-            next_month: 32,
-            next_3_month: 96,
-            lifetime: 312,
-          },
-          {
-            email: "Emma@moodies.com",
-            next_month: 25,
-            next_3_month: 75,
-            lifetime: 267,
-          },
-          {
-            email: "James@moodies.com",
-            next_month: 19,
-            next_3_month: 57,
-            lifetime: 198,
-          },
-          {
-            email: "Lisa@moodies.com",
-            next_month: 35,
-            next_3_month: 105,
-            lifetime: 389,
-          },
-          {
-            email: "Robert@moodies.com",
-            next_month: 21,
-            next_3_month: 63,
-            lifetime: 234,
-          },
-          {
-            email: "Jennifer@moodies.com",
-            next_month: 27,
-            next_3_month: 81,
-            lifetime: 276,
-          },
-          {
-            email: "William@moodies.com",
-            next_month: 16,
-            next_3_month: 48,
-            lifetime: 167,
-          },
-          {
-            email: "Jessica@moodies.com",
-            next_month: 31,
-            next_3_month: 93,
-            lifetime: 325,
-          },
-          {
-            email: "Christopher@moodies.com",
-            next_month: 24,
-            next_3_month: 72,
-            lifetime: 256,
-          },
-          {
-            email: "Amanda@moodies.com",
-            next_month: 20,
-            next_3_month: 60,
-            lifetime: 213,
-          },
-        ]
-
-        // Sort by lifetime value (descending)
-        const sortedData = mockData.sort((a, b) => b.lifetime - a.lifetime)
-
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        setData(sortedData)
-        setFilteredData(sortedData)
-      } catch (err) {
-        console.error("Failed to fetch CLV data:", err)
-        setError(err instanceof Error ? err.message : "Failed to fetch data")
+        const leaderboard = await buildCLVLeaderboardData()
+        setData(leaderboard)
+        setFilteredData(leaderboard)
+      } catch (e: any) {
+        setError("Failed to load leaderboard data.")
       } finally {
         setLoading(false)
       }
     }
-
-    fetchData()
+    loadData()
   }, [])
 
-  // Filter data based on search term
   useEffect(() => {
     if (!searchTerm) {
       setFilteredData(data)
     } else {
-      const filtered = data.filter(
-        (customer) =>
-          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.next_month.toString().includes(searchTerm) ||
-          customer.next_3_month.toString().includes(searchTerm) ||
-          customer.lifetime.toString().includes(searchTerm),
+      const term = searchTerm.toLowerCase()
+      const filtered = data.filter((item) =>
+        item.email.toLowerCase().includes(term) ||
+        item.next_month.toString().includes(term) ||
+        item.next_3_month.toString().includes(term) ||
+        item.lifetime.toString().includes(term)
       )
       setFilteredData(filtered)
     }
   }, [searchTerm, data])
+
+  const formatCurrency = (value: number) => `€${value.toFixed(2)}`
 
   if (loading) {
     return (
@@ -175,7 +147,6 @@ export function CLVLeaderboard() {
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -191,7 +162,6 @@ export function CLVLeaderboard() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-gray-900 rounded-lg p-4">
         <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           <Table>
@@ -209,9 +179,9 @@ export function CLVLeaderboard() {
                 <TableRow key={customer.email} className="border-gray-700 hover:bg-gray-800">
                   <TableCell className="text-gray-400 text-center font-medium">{index + 1}</TableCell>
                   <TableCell className="text-white font-medium">{customer.email}</TableCell>
-                  <TableCell className="text-white text-center">€{customer.next_month}</TableCell>
-                  <TableCell className="text-white text-center">€{customer.next_3_month}</TableCell>
-                  <TableCell className="text-white text-center">€{customer.lifetime}</TableCell>
+                  <TableCell className="text-white text-center">{formatCurrency(customer.next_month)}</TableCell>
+                  <TableCell className="text-white text-center">{formatCurrency(customer.next_3_month)}</TableCell>
+                  <TableCell className="text-white text-center">{formatCurrency(customer.lifetime)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -8,6 +8,12 @@ interface DistributionData {
   count: number
 }
 
+interface ApiResponse {
+  distribution: {
+    [key: string]: number
+  }
+}
+
 export function CLVDistribution() {
   const [data, setData] = useState<DistributionData[]>([])
   const [loading, setLoading] = useState(true)
@@ -17,20 +23,44 @@ export function CLVDistribution() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        // Mock data - replace with actual API call
-        const mockData: DistributionData[] = [
-          { range: "€0-50", count: 120 },
-          { range: "€0-100", count: 450 },
-          { range: "€100-200", count: 280 },
-          { range: "€200-500", count: 680 },
-          { range: "€500+", count: 420 },
-        ]
+        const response = await fetch("http://localhost:5000/clv/lifetime_clv_distribution")
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 800))
-        setData(mockData)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const result: ApiResponse = await response.json()
+
+        if (result.distribution) {
+          // Convert the distribution object to array format for the chart
+          // Define the correct order based on the expected API response
+          const rangeOrder = ["0-50", "50-100", "100-200", "200-300", "300-400", "400-500", "500+"]
+
+          const distributionArray = rangeOrder
+            .filter((range) => result.distribution[range] !== undefined) // Only include ranges that exist in the data
+            .map((range) => ({
+              range: range, // Keep the original range format from API
+              count: result.distribution[range],
+            }))
+
+          // Also include any ranges from the API that might not be in our predefined order
+          Object.keys(result.distribution).forEach((range) => {
+            if (!rangeOrder.includes(range)) {
+              distributionArray.push({
+                range: range,
+                count: result.distribution[range],
+              })
+            }
+          })
+
+          console.log("CLV Distribution data:", distributionArray)
+          console.log("Original API response:", result.distribution)
+          setData(distributionArray)
+        } else {
+          throw new Error("Invalid response format - missing distribution")
+        }
       } catch (err) {
-        console.error("Failed to fetch distribution data:", err)
+        console.error("Failed to fetch CLV distribution data:", err)
         setError(err instanceof Error ? err.message : "Failed to fetch data")
       } finally {
         setLoading(false)
@@ -62,13 +92,44 @@ export function CLVDistribution() {
     )
   }
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <p className="text-sm text-gray-500">No distribution data available</p>
+      </div>
+    )
+  }
+
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <XAxis dataKey="range" tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} />
-        <YAxis tick={{ fontSize: 12 }} axisLine={{ stroke: "#e5e7eb" }} />
+      <BarChart data={data} margin={{ top: 20, right: 30, left: 60, bottom: 80 }}>
+        <XAxis
+          dataKey="range"
+          tick={{ fontSize: 12 }}
+          axisLine={{ stroke: "#e5e7eb" }}
+          angle={-45}
+          textAnchor="end"
+          height={60}
+          label={{
+            value: "CLV Range (€)",
+            position: "insideBottom",
+            offset: -10,
+            style: { textAnchor: "middle", fontSize: "14px", fontWeight: "500" },
+          }}
+        />
+        <YAxis
+          tick={{ fontSize: 12 }}
+          axisLine={{ stroke: "#e5e7eb" }}
+          label={{
+            value: "Number of Customers",
+            angle: -90,
+            position: "insideLeft",
+            style: { textAnchor: "middle", fontSize: "14px", fontWeight: "500" },
+          }}
+        />
         <Tooltip
           formatter={(value) => [`${value} customers`, "Count"]}
+          labelFormatter={(label) => `CLV Range: €${label}`}
           labelStyle={{ color: "#374151" }}
           contentStyle={{
             backgroundColor: "#f9fafb",
