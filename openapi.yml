@@ -1,5 +1,97 @@
 url: http://localhost:5000
 paths:
+  /signup:
+    post:
+      summary: Register a new user
+      description: Create a new user account with username, email and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /login:
+    post:
+      summary: User login
+      description: Authenticate a user with email and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      email:
+                        type: string
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
   /clv/predictions/next-three-months:
     get:
       summary: Get predictions for the next three months
@@ -137,3 +229,244 @@ components:
           additionalProperties:
             type: integer
           description: Mapping of CLV range labels to customer counts
+
+     /train-clustering:
+    post:
+      summary: Train DBSCAN clustering model
+      description: Trains the DBSCAN model using preprocessed customer order data.
+      responses:
+        '200':
+          description: Model trained successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  summary_path:
+                    type: string
+
+  /dbscan-summary:
+    get:
+      summary: Get DBSCAN cluster summary
+      description: Returns the DBSCAN cluster summary as JSON records.
+      responses:
+        '200':
+          description: Cluster summary returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+  /distribution:
+    get:
+      summary: Get cluster distribution summary
+      description: Returns distribution of customers across clusters.
+      responses:
+        '200':
+          description: Distribution summary returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /items-per-cluster:
+    get:
+      summary: Get average items per cluster
+      description: Returns average number of items per cluster.
+      responses:
+        '200':
+          description: Average items summary returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /city-distribution:
+    get:
+      summary: Get cluster distribution by city
+      description: Returns distribution of clusters based on customer city.
+      responses:
+        '200':
+          description: Distribution by city returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /country-distribution:
+    get:
+      summary: Get cluster distribution by country
+      description: Returns distribution of clusters based on customer country.
+      responses:
+        '200':
+          description: Distribution by country returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /clustering-cards-metrics:
+    get:
+      summary: Get clustering dashboard metrics
+      description: Returns dashboard card metrics for clusters.
+      responses:
+        '200':
+          description: Dashboard metrics returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /discount-metrics:
+    get:
+      summary: Get discount code usage metrics
+      description: Return order counts per discount code from Shopify orders.
+      responses:
+        '200':
+          description: Discount metrics successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /shopify/discount-revenue:
+    get:
+      summary: Get discount code revenue
+      description: Return revenue per discount code.
+      responses:
+        '200':
+          description: Discount code revenue successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /shopify/discount-order-count:
+    get:
+      summary: Get discount code order count
+      description: Return order count per discount code.
+      responses:
+        '200':
+          description: Discount order count successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /shopify/sku-revenue:
+    get:
+      summary: Get SKU revenue
+      description: Return revenue per SKU from Shopify.
+      responses:
+        '200':
+          description: SKU revenue successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /shopify/sku-order-count:
+    get:
+      summary: Get SKU order count
+      description: Return order count per SKU from Shopify.
+      responses:
+        '200':
+          description: SKU order count successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+
+  /npd-predictions:
+    get:
+      summary: Get customer NPD predictions
+      description: Return full per-customer next purchase days prediction records.
+      responses:
+        '200':
+          description: Customer predictions returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /npd-stats:
+    get:
+      summary: Get NPD summary statistics
+      description: Return highest, lowest, and average next purchase days.
+      responses:
+        '200':
+          description: NPD statistics returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  highest_next_purchase_days:
+                    type: integer
+                  lowest_next_purchase_days:
+                    type: integer
+                  average_next_purchase_days:
+                    type: integer
