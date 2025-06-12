@@ -17,7 +17,12 @@ export function ClusterMetrics() {
       <BarChart data={data}>
         <XAxis dataKey="label" />
         <YAxis />
-        <Tooltip formatter={(value) => [`${value.toFixed(2)} items`, "Average Items"]} />
+        <Tooltip
+          formatter={(value) => {
+            const num = typeof value === 'number' ? value : parseFloat(value as string);
+            return [`${num.toFixed(2)} items`, "Average Items"];
+          }}
+        />
         <Bar dataKey="avg_items" name="Average Items" fill="#82ca9d" />
       </BarChart>
     </ResponsiveContainer>
