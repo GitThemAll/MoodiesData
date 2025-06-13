@@ -1,6 +1,6 @@
 # Moodies Undies - Fullstack Data Science Platform
 
-## 🩲 Project Overview
+## Project Overview
 
 This project is developed for **Moodies Undies** as part of the AI & Data Science minor.  
 It includes:
