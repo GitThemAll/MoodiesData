@@ -1,18 +1,18 @@
 from flask import Flask
 from flask_cors import CORS
-from interfaces.api.user_routes import user_bp
-from interfaces.api.insights_routes import insights_bp
-from interfaces.api.clustering_route import clustering_bp
-from interfaces.api.sku_metrics_routes import sku_metrics_bp
-from interfaces.api.clv_route import clv_bp
+from interfaces.rest.v1.user_routes import user_bp
+from interfaces.rest.v1.insights_routes import insights_bp
+from interfaces.rest.v1.clustering_route import clustering_bp
+from interfaces.rest.v1.sku_metrics_routes import sku_metrics_bp
+from interfaces.rest.v1.clv_route import clv_bp
 from infra.clients.shopify import ShopifyClient
 from infra.clients.klaviyo import KlaviyoClient
 from application.services.segment_service import segment_service
 from application.services.dbscan_service import dbscan_service
 from flask import Flask
 from infra.repositories.users_database import db
+from interfaces.rest.v1.npd_controller import npd_blueprint
 import os
-from interfaces.api.npd_controller import npd_blueprint 
 
 def create_app():
     app = Flask(__name__)

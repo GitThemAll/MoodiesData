@@ -1,0 +1,12 @@
+# Ignore dependencies and build output
+node_modules
+.next
+.vercel
+build
+out
+coverage
+
+# Editor and environment files
+.vscode
+.DS_Store
+.env*

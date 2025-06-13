@@ -1,0 +1,21 @@
+
+# Python cache files
+**/__pycache__/
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Development environments
+.vscode
+.venv
+
+# Version control
+.git
+.gitignore
+.github
+
+# Project specific
+**ml_models/
+notebooks/
+interfaces/ui/
