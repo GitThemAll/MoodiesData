@@ -15,6 +15,7 @@ class TwoStageCLVModel:
     """
     Two-stage CLV model with versioned persistence of models, metrics, and schema.
     """
+    MODELS_DIRCTORY : str = "ml_models"
     BASE_DIR: str = "clv_two_stage_models"
     VERSION_DIR: str = "versions"
     METRICS_FILE: str = "metrics.json"
@@ -112,7 +113,7 @@ class TwoStageCLVModel:
     def _save_models_and_metadata(self) -> None:
         # Create version identifier
         self.version = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-        version_dir = os.path.join(self.BASE_DIR,self.target, self.VERSION_DIR, self.version)
+        version_dir = os.path.join(self.MODELS_DIRCTORY, self.BASE_DIR, self.target, self.VERSION_DIR, self.version)
         os.makedirs(version_dir, exist_ok=True, mode=0o755)
 
         # Save models
@@ -143,7 +144,7 @@ class TwoStageCLVModel:
         }
 
     def _load_models(self, version: str) -> Tuple[LGBMClassifier, LGBMRegressor]:
-        version_dir = os.path.join(self.BASE_DIR, self.target, self.VERSION_DIR, version)
+        version_dir = os.path.join(self.MODELS_DIRCTORY, self.BASE_DIR, self.target, self.VERSION_DIR, version)
         clf = joblib.load(os.path.join(version_dir, 'classifier.pkl'))
         reg = joblib.load(os.path.join(version_dir, 'regressor.pkl'))
         return clf, reg

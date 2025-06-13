@@ -1,3 +1,4 @@
+from multiprocessing import process
 import os
 import threading
 from datetime import date
@@ -13,6 +14,9 @@ clv_bp = Blueprint('clv', __name__)
 service = ClvService()
 
 # Keep track of which model-targets are currently being trained
+PROCESSED_DATA_PATH = os.path.join("resources", "data", "processed", "clv")
+NEXT_THREE_MONTHS_PREDICTIONS_FILE = os.path.join(PROCESSED_DATA_PATH, "next_3_months_spend.csv")
+NEXT_MONTH_PREDICTIONS_FILE = os.path.join(PROCESSED_DATA_PATH, "next_1_months_spend.csv")
 training_tasks = set()
 training_lock = threading.Lock()
 
@@ -37,7 +41,7 @@ def train_two_stage_model(cutoff_date, model_target_variable, target_amount_of_m
     pd.DataFrame(
         next_month_predictions.round(2),
         columns=["Email", model_target_variable]
-    ).to_csv(f"{model_target_variable}.csv", index=False)
+    ).to_csv(os.path.join(PROCESSED_DATA_PATH, f"{model_target_variable}.csv"), index=False)
 
 def kick_off_training_for(model_target_variable: str):
     """
@@ -67,8 +71,8 @@ def kick_off_training_for(model_target_variable: str):
 
 @clv_bp.route('/predictions/next-three-months', methods=['GET'])
 def get_three_month_predictions():
-    fn = 'next_3_months_spend.csv'
-    if not os.path.isfile(fn):
+
+    if not os.path.isfile(NEXT_THREE_MONTHS_PREDICTIONS_FILE):
         kick_off_training_for("next_3_months_spend")
         return (
             jsonify({
@@ -78,13 +82,12 @@ def get_three_month_predictions():
             202
         )
 
-    df = pd.read_csv(fn)
+    df = pd.read_csv(NEXT_THREE_MONTHS_PREDICTIONS_FILE)
     return jsonify(df.to_dict(orient='records'))
 
 @clv_bp.route('/predictions/next-month', methods=['GET'])
 def get_next_month_prediction():
-    fn = 'next_1_months_spend.csv'
-    if not os.path.isfile(fn):
+    if not os.path.isfile(NEXT_MONTH_PREDICTIONS_FILE):
         kick_off_training_for("next_1_months_spend")
         return (
             jsonify({
@@ -94,20 +97,20 @@ def get_next_month_prediction():
             202
         )
 
-    df = pd.read_csv(fn)
+    df = pd.read_csv(NEXT_MONTH_PREDICTIONS_FILE)
     return jsonify(df.to_dict(orient='records'))
 
 @clv_bp.route('/predictions/', methods=['GET'])
 def get_clv_prediction_next_1_and_3_months():
     # If either file is missing, tell the client to retry later.
     missing = [
-        name for name in ("next_1_months_spend.csv", "next_3_months_spend.csv")
+        name for name in (NEXT_MONTH_PREDICTIONS_FILE, NEXT_THREE_MONTHS_PREDICTIONS_FILE)
         if not os.path.isfile(name)
     ]
     if missing:
         # kick off whatever's missing
-        for var, fn in [("next_1_months_spend", "next_1_months_spend.csv"),
-                        ("next_3_months_spend", "next_3_months_spend.csv")]:
+        for var, fn in [("next_1_months_spend", NEXT_MONTH_PREDICTIONS_FILE),
+                        ("next_3_months_spend", NEXT_THREE_MONTHS_PREDICTIONS_FILE)]:
             if fn in missing:
                 kick_off_training_for(var)
         return (
@@ -119,8 +122,8 @@ def get_clv_prediction_next_1_and_3_months():
         )
 
     # both files exist: merge and return
-    df1 = pd.read_csv('next_1_months_spend.csv')
-    df3 = pd.read_csv('next_3_months_spend.csv')
+    df1 = pd.read_csv(NEXT_MONTH_PREDICTIONS_FILE)
+    df3 = pd.read_csv(NEXT_THREE_MONTHS_PREDICTIONS_FILE)
     combined = df1.merge(df3, on='Email')
     return jsonify(combined.to_dict(orient='records'))
 
