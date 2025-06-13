@@ -39,3 +39,22 @@ The system enables Moodies Undies to analyze customer behavior, predict purchasi
     next.config.js
   docker-compose.yml
   .env
+
+## How to run:
+prerequisite:
+Make sure you have the raw data in the `resources/data/raw` folder so that it can be processed by the app
+
+### On your machine:
+#### run the backend:
+run `python -m flask -m run`
+#### run the front-end
+go to the ui directory: run `cd interfaces/ui/mu-ui/Dockerfile`
+donwload npm packages: run `npm ci` 
+build: run `npm run build`
+
+### on docker locally:
+simply run `docker compose up --build`
+
+-----------
+However you ran the app, you can access it on localhost:3000
+Accessing the api directly can also be done localhost:5004
