@@ -26,7 +26,7 @@ export function NPDLeaderboard() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/npd-predictions")
+        const response = await fetch("http://localhost:8004/npd-predictions")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

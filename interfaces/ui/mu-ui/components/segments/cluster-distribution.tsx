@@ -27,7 +27,7 @@ export function ClusterDistribution({ selectedCluster }: ClusterDistributionProp
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/ml/distribution")
+        const response = await fetch("http://localhost:8004/ml/distribution")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

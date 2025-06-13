@@ -64,9 +64,9 @@ export function CLVMetrics() {
 
         // Fetch data from all three endpoints
         const [nextMonthRes, next3MonthRes, lifetimeRes] = await Promise.all([
-          fetch("http://localhost:5000/clv/predictions/next-month"),
-          fetch("http://localhost:5000/clv/predictions/next-three-months"),
-          fetch("http://localhost:5000/clv/lifetime"),
+          fetch("http://localhost:8004/clv/predictions/next-month"),
+          fetch("http://localhost:8004/clv/predictions/next-three-months"),
+          fetch("http://localhost:8004/clv/lifetime"),
         ])
 
         if (!nextMonthRes.ok || !next3MonthRes.ok || !lifetimeRes.ok) {

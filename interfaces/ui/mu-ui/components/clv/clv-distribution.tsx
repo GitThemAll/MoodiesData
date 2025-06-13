@@ -23,7 +23,7 @@ export function CLVDistribution() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/clv/lifetime_clv_distribution")
+        const response = await fetch("http://localhost:8004/clv/lifetime_clv_distribution")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

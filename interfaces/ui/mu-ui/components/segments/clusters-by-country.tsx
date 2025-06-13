@@ -25,7 +25,7 @@ export function ClustersByCountry() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/ml/country-distribution")
+        const response = await fetch("http://localhost:8004/ml/country-distribution")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

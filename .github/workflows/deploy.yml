@@ -1,0 +1,67 @@
+name: DEPLOY
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  prepare-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 35.181.157.242 >> ~/.ssh/known_hosts
+
+      - name: Check and install Docker & Docker Compose on server
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@35.181.157.242 << 'EOF'
+            if ! command -v docker &> /dev/null; then
+              echo "Docker not found. Installing Docker..."
+              sudo yum update -y
+              sudo yum install -y docker
+              sudo service docker start
+              sudo usermod -a -G docker ec2-user
+            fi
+
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Docker Compose not found. Installing Docker Compose..."
+              sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+          EOF
+
+      - name: Copy project files to the server
+        shell: bash
+        run: |
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r * ec2-user@35.181.157.242:/home/ec2-user/Moodies
+
+  deploy-production:
+    needs: [prepare-server]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up SSH key
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 35.181.157.242 >> ~/.ssh/known_hosts
+
+      - name: Deploy Production Environment
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@35.181.157.242 << 'EOF'
+            cd /home/ec2-user/Moodies
+            sudo docker-compose rm --stop --force
+            sudo docker-compose up --build -d
+          EOF

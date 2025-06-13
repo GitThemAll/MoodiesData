@@ -37,7 +37,7 @@ export function ClusterCards() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/ml/clustering-cards-metrics")
+        const response = await fetch("http://localhost:8004/ml/clustering-cards-metrics")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

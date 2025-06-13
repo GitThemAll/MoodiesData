@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "8004:8004"
     volumes:
       - ./resources:/app/resources
   frontend:

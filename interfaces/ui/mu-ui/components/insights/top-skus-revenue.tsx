@@ -27,7 +27,7 @@ export function TopSkusRevenue() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/insights/shopify/sku-revenue")
+        const response = await fetch("http://localhost:8004/insights/shopify/sku-revenue")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

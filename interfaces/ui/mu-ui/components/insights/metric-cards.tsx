@@ -31,10 +31,10 @@ export function MetricCards() {
     try {
       // Fetch all discount data
       const [discountRevenueRes, discountOrdersRes, skuRevenueRes, skuOrdersRes] = await Promise.all([
-        fetch("http://localhost:5000/insights/shopify/discount-revenue"),
-        fetch("http://localhost:5000/insights/shopify/discount-order-count"),
-        fetch("http://localhost:5000/insights/shopify/sku-revenue"),
-        fetch("http://localhost:5000/insights/shopify/sku-order-count"),
+        fetch("http://localhost:8004/insights/shopify/discount-revenue"),
+        fetch("http://localhost:8004/insights/shopify/discount-order-count"),
+        fetch("http://localhost:8004/insights/shopify/sku-revenue"),
+        fetch("http://localhost:8004/insights/shopify/sku-order-count"),
       ])
 
       const [discountRevenueData, discountOrdersData, skuRevenueData, skuOrdersData] = await Promise.all([

@@ -22,7 +22,7 @@ export function NPDMetrics() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/npd-stats")
+        const response = await fetch("http://localhost:8004/npd-stats")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

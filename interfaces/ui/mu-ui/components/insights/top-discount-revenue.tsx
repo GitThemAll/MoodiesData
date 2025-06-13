@@ -27,7 +27,7 @@ export function TopDiscountRevenue() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch("http://localhost:5000/insights/shopify/discount-revenue")
+        const response = await fetch("http://localhost:8004/insights/shopify/discount-revenue")
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

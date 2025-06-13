@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # expose port for flask
-EXPOSE 5000
+EXPOSE 8004
 
 VOLUME ["/app/resources"]
-CMD ["gunicorn", "-b", "0.0.0.0:5000",  "app:create_app()"]
+CMD ["gunicorn", "-b", "0.0.0.0:8004",  "app:create_app()"]
