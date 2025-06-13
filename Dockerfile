@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 5000
 
 VOLUME ["/app/resources"]
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000",  "app:create_app()"]
