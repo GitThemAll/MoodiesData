@@ -18,7 +18,7 @@ The system enables Moodies Undies to analyze customer behavior, predict purchasi
 | Layer | Technology |
 | ----- | ----------- |
 | Backend | Python 3.12, Flask, SQLAlchemy, SQLite |
-| Machine Learning | scikit-learn, LightGBM, CatBoost, XGBoost |
+| Machine Learning | DBSCAN, LightGBM, Random Forest, XGBoost |
 | Frontend | React, Next.js 15 (App Router), TypeScript |
 | Containerization | Docker, Docker Compose |
 | Visualization | Recharts, ResponsiveContainer |
