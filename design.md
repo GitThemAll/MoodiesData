@@ -1,6 +1,6 @@
 # Project Design – Moodies CLV Dashboard
 
-This project is a Streamlit dashboard that shows insights and machine learning predictions for a Shopify store using data from Shopify and Klaviyo.
+This project is a react dashboard that shows insights and machine learning predictions for a Shopify store using data from Shopify and Klaviyo.
 
 The project follows a Domain-Driven Design (DDD) structure, which means we split the project into separate layers, each with its own responsibility.
 
@@ -9,10 +9,18 @@ The project follows a Domain-Driven Design (DDD) structure, which means we split
 ## Overview of Layers
 
 ### 1. **Interface Layer**
-- Folder: `interfaces/ui/streamlit`
-- This is the frontend built with Streamlit.
+- This is the user facing layer, it dependes on the application layer to retrieve data, that is served to the user.
+- Folder: `interfaces`
+- The ui made with react lives in `interfaces\ui\mu-ui`.
 - It shows pages like:
   - Overview
+  - Customer Segments
+  - CLV Analysis
+  - Next Purchase Prediction
+- It also handles user login.
+- The REST API made with Flask lives in `interfaces\rest\v1`.
+- It exposes multiple endpoint for the:
+  - insights
   - Customer Segments
   - CLV Analysis
   - Next Purchase Prediction
@@ -20,24 +28,15 @@ The project follows a Domain-Driven Design (DDD) structure, which means we split
 
 ### 2. **Application Layer**
 - Folder: `application/`
-- This layer connects the front end (for now only Streamlit) to:
-  - The logic in the domain layer
-  - The API clients in the infrastructure layer
-- Each business logic has its own service:
-  #### ML models service:
-  - `clv_service.py` < service the CLV page
-  - `segment_service.py` < service the segment page
-  - `npd_service.py` < service the next purchase data page
-  #### other service:
-  - `insights_service.py` < service the overview page
-  - `user_service.py`< handles user authentication
-
+- This layer connects the interface with the domain & infra layer
+- Each business logic living in the domain is represented with its own service. (e.g. insights_service.py serves insights data that is outputed by the domain logic to the interface layer)
+- 
 ### 3. **Domain Layer**
 - Folder: `domains/`
 - This is the business core logic lays.
 - It has 5 domains:
   
-  #### a. `user/`
+  #### a. `authentication/`
   - Authenticates users that log in.
   - Validates them against a users in an SQLite database.
 
@@ -50,7 +49,6 @@ The project follows a Domain-Driven Design (DDD) structure, which means we split
     - Cleans and prepares its own data.
     - Engineers features and prepares data needed by the model.
     - Loads and train machine learning models.
-    - Models are saved in the root of each of these domains, and can be run by their service to predict.
 
 ### 4. **Infrastructure Layer**
 - This layer is created to interface with external services.
@@ -62,21 +60,6 @@ The project follows a Domain-Driven Design (DDD) structure, which means we split
 
 ---
 
-## How it works in a nutshell 
-
-1. The user logs in via the Streamlit app.
-2. The Streamlit page calls the `user_service` in the application layer to authenticate the user.
-3. If the user is authenticated and no processed data or trained models exist yet, each service is called to execute its pipeline.
-4. The services fetch raw data from Shopify or Klaviyo using their clients in the infrastructure layer.
-5. The domain layer handles:
-   - Cleaning the raw data
-   - Feature engineering
-   - Preparing the data for training or prediction
-   - Training the model (if needed)
-6. The model makes a prediction (CLV, customer segment, or next purchase date).
-7. The Streamlit UI shows the results back to the user.
-
----
 
 ## 📁 Data Folders
 
