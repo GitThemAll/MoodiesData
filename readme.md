@@ -1,4 +1,4 @@
-# Moodies Undies - Fullstack Data Science Platform
+# Moodies Undies -  Data Science project
 
 ## Project Overview
 
@@ -13,7 +13,7 @@ The system enables Moodies Undies to analyze customer behavior, predict purchasi
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 | ----- | ----------- |
@@ -25,20 +25,6 @@ The system enables Moodies Undies to analyze customer behavior, predict purchasi
 | Data Management | SQLite (resources/data/mydatabase.db) |
 
 ---
-
-## 📂 Project Structure
-
-```bash
-/project-root
-  /backend
-    app.py
-    requirements.txt
-    resources/data/mydatabase.db
-  /interfaces/ui/mu-ui
-    package.json
-    next.config.js
-  docker-compose.yml
-  .env
 
 ## How to run:
 prerequisite:
